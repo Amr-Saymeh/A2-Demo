@@ -16,7 +16,7 @@ import { AddEmployeePageComponent } from './pages/add-employee-page/add-employee
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
-  { path: 'cart',loadComponent: () => import('./components/cart/cart.component').then(m => m.CartComponent)},
+  { path: 'cart', loadComponent: () => import('./components/cart/cart.component').then(m => m.CartComponent) },
   { path: ':restId', component: HomeComponent },
   { path: ':restId/category/:categoryKey', component: CategoryComponent },
   { path: ':restId/t/:tableId', component: TableSigninComponent },
@@ -28,7 +28,7 @@ export const routes: Routes = [
   { path: ':restId/bar-orders', component: BarOrdersComponent },
   { path: ':restId/hookah-orders', component: HookahOrdersComponent },
   { path: ':restId/ordering-dashboard', component: OrderingDashboardComponent },
-  { path: ':restId/attendance', component: AttendancePageComponent},
+  { path: ':restId/attendance', component: AttendancePageComponent },
   { path: ':restId/add-employee', component: AddEmployeePageComponent },
   { path: '**', redirectTo: '' }
 ];
