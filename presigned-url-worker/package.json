@@ -1,0 +1,30 @@
+{
+	"name": "presigned-url-worker",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"vitest": "~3.2.0",
+		"wrangler": "^4.35.0"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.886.0",
+		"@aws-sdk/s3-request-presigner": "^3.886.0",
+		"uuid": "^13.0.0"
+	},
+	"description": "",
+	"main": "vitest.config.js",
+	"directories": {
+		"test": "test"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs"
+}

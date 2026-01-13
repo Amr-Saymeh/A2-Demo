@@ -1,0 +1,119 @@
+<div class="container py-4">
+  
+  <div class="row g-4">
+    <!-- 🧾 Add Employee Form -->
+     
+    <div class="col-lg-7">
+      <div class="card shadow p-4 h-100">
+        <div class="mb-3">
+          <h2 class="text-center mb-4">Add Employee</h2>
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" [(ngModel)]="name" placeholder="Employee name" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" [(ngModel)]="password" placeholder="Password" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <input type="text" class="form-control" [(ngModel)]="role" placeholder="e.g. Manager, Waiter, Cashier" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Image URL</label>
+          <input type="text" class="form-control" [(ngModel)]="imageUrl" placeholder="https://..." />
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Age</label>
+            <input type="number" class="form-control" [(ngModel)]="age" placeholder="Age" />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Salary (₪)</label>
+            <input type="number" class="form-control" [(ngModel)]="salary" placeholder="Salary" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-100" [disabled]="loading" (click)="addEmployee()">
+          {{ loading ? 'Adding...' : 'Add Employee' }}
+        </button>
+
+        <div
+          class="text-center mt-3"
+          [class.text-success]="message.startsWith('✅')"
+          [class.text-danger]="message.startsWith('❌')"
+        >
+          {{ message }}
+        </div>
+      </div>
+    </div>
+
+    <!-- 👥 Employee Cards List -->
+    <div class="col-lg-4">
+      <div class="employee-list mx-auto">
+        <h4 class="mb-3">All Employees</h4>
+
+        <!-- 🔹 Stacked Employee Cards -->
+        <div
+          class="employee-card d-flex align-items-center justify-content-between p-3 mb-3 rounded shadow-sm bg-white"
+          *ngFor="let emp of employees"
+          (click)="openEmployeeDetails(emp)"
+          style="cursor: pointer;"
+        >
+          <div class="d-flex align-items-center gap-3">
+            <img
+              [src]="emp.imageUrl || 'https://via.placeholder.com/60'"
+              alt="avatar"
+              class="rounded-circle"
+              width="55"
+              height="55"
+              style="object-fit: cover;"
+            />
+            <div>
+              <div class="fw-semibold">{{ emp.name }}</div>
+              <div class="text-muted small">{{ emp.role || 'Employee' }}</div>
+            </div>
+          </div>
+          <div class="text-end text-muted small">
+            {{ emp.age ? emp.age + ' yrs' : '' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🧍‍♂️ Employee Info Modal -->
+  <div
+    *ngIf="selectedEmployee"
+    class="modal fade show d-block"
+    tabindex="-1"
+    [ngStyle]="{ background: 'rgba(0,0,0,0.5)' }"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ selectedEmployee.name }}</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img
+            [src]="selectedEmployee.imageUrl || 'https://via.placeholder.com/120'"
+            class="rounded-circle mb-3"
+            width="120"
+            height="120"
+            style="object-fit: cover;"
+          />
+          <p><strong>Role:</strong> {{ selectedEmployee.role || 'Employee' }}</p>
+          <p><strong>Age:</strong> {{ selectedEmployee.age || 'N/A' }}</p>
+          <p><strong>Salary:</strong> {{ selectedEmployee.salary ? (selectedEmployee.salary + ' ₪') : 'N/A' }}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

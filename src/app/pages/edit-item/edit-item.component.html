@@ -1,0 +1,150 @@
+<div class="edit-item-container">
+  <h2 class="page-title">
+    {{ isArabic ? 'تعديل عنصر القائمة' : 'Edit Menu Item' }}
+  </h2>
+
+  <div class="form-group">
+    <label for="categorySelect">{{ isArabic ? 'اختر الفئة:' : 'Select Category:' }}</label>
+    <select id="categorySelect" [(ngModel)]="selectedCategoryId" (change)="onCategoryChange()" class="form-control">
+      <option value="">{{ isArabic ? '-- اختر فئة --' : '-- Choose Category --' }}</option>
+      <option *ngFor="let cat of categoryList" [value]="cat.key">
+        {{ isArabic ? cat.nameArabic : cat.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Item Selection -->
+  <div class="form-group" *ngIf="items.length > 0">
+    <label for="itemSelect">{{ isArabic ? 'اختر عنصر:' : 'Select Item:' }}</label>
+    <select id="itemSelect" [(ngModel)]="selectedItemId" (change)="onItemChange()" class="form-control">
+      <option value="">{{ isArabic ? '-- اختر عنصر --' : '-- Choose Item --' }}</option>
+      <option *ngFor="let item of items" [value]="item.id">
+        {{ isArabic ? item.nameArabic : item.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- No items message -->
+  <div *ngIf="selectedCategoryId && items.length === 0" class="no-items-message">
+    <p>{{ isArabic ? 'لا توجد عناصر في هذه الفئة.' : 'No items found in this category.' }}</p>
+  </div>
+
+  <!-- Item Editing Form -->
+  <div *ngIf="selectedItem" class="edit-form">
+    <h3>{{ isArabic ? 'تعديل تفاصيل العنصر' : 'Edit Item Details' }}</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nameEn">{{ isArabic ? 'الاسم (إنجليزي):' : 'Name (English):' }}</label>
+        <input id="nameEn" [(ngModel)]="selectedItem.name" placeholder="Name (EN)" class="form-control">
+      </div>
+      
+      <div class="form-group">
+        <label for="nameAr">{{ isArabic ? 'الاسم (عربي):' : 'Name (Arabic):' }}</label>
+        <input id="nameAr" [(ngModel)]="selectedItem.nameArabic" placeholder="Name (AR)" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="price">{{ isArabic ? 'السعر:' : 'Price:' }}</label>
+        <input id="price" [(ngModel)]="selectedItem.price" type="number" step="0.01" class="form-control">
+      </div>
+    </div>  
+    <div class="form-row">
+      <!-- UPLOAD AREA: placed here, above the Image URL input -->
+      <div class="form-group upload-area">
+        <label>{{ isArabic ? 'رفع صورة:' : 'Upload Image:' }}</label>
+
+        <div class="upload-horizontal">
+          <div class="upload-card">
+            <input #imageInput type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="uploading" hidden />
+            <button type="button" class="btn btn-success" (click)="imageInput.click()" [disabled]="uploading">
+              {{ isArabic ? 'اختر صورة' : 'Choose Image' }}
+            </button>
+            <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+            <button type="button" class="clear-btn" *ngIf="previewUrl" (click)="clearPendingFile()" [disabled]="uploading">
+              {{ isArabic ? 'إزالة' : 'Clear' }}
+            </button>
+          </div>
+
+          <!-- preview: show selected preview if available, otherwise current image -->
+          <p class="preview-title">{{ isArabic ? 'المعاينة:' : 'Preview:' }}</p>
+
+          <div *ngIf="previewUrl || selectedItem?.image" class="preview">
+            <img [src]="previewUrl || selectedItem?.image" alt="Image preview" />
+          </div>
+          <br>
+          <small class="upload-hint-inline">
+            {{ isArabic ? 'سيتم رفع الصورة عند الضغط على حفظ التغييرات.' : 'The image will be uploaded when you click Save Changes.' }}
+          </small>
+        </div>
+
+        <!-- progress during save/upload -->
+        <div *ngIf="uploading" class="upload-progress">
+          <div class="progress"><div class="progress-bar" [style.width.%]="uploadProgress"></div></div>
+          <span>{{ uploadProgress }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="image">{{ isArabic ? 'رابط الصورة:' : 'Image URL:' }}</label>
+      <input id="image" [(ngModel)]="selectedItem.image" placeholder="Image URL" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="ingredientsEn">{{ isArabic ? 'المكونات (إنجليزي):' : 'Ingredients (English):' }}</label>
+      <textarea id="ingredientsEn" [(ngModel)]="selectedItem.ingredients" class="form-control textarea"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="ingredientsAr">{{ isArabic ? 'المكونات (عربي):' : 'Ingredients (Arabic):' }}</label>
+      <textarea id="ingredientsAr" [(ngModel)]="selectedItem.ingredientsArabic" class="form-control textarea"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>{{ isArabic ? 'الخيارات' : 'Choices' }}</label>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ isArabic ? 'الاسم (عربي):' : 'Name (AR):' }}</label>
+          <input [(ngModel)]="choiceDraft.ar" class="form-control" dir="rtl" placeholder="مثال: صغير">
+        </div>
+        <div class="form-group">
+          <label>{{ isArabic ? 'الاسم (إنجليزي):' : 'Name (EN):' }}</label>
+          <input [(ngModel)]="choiceDraft.en" class="form-control" placeholder="e.g., Small">
+        </div>
+        <div class="form-group">
+          <label>{{ isArabic ? 'إضافة السعر:' : 'Price Add:' }}</label>
+          <div class="input-group">
+            <span class="input-group-text">₪</span>
+            <input [(ngModel)]="choiceDraft.add" type="number" class="form-control" placeholder="0">
+          </div>
+        </div>
+        <div class="form-group" style="align-self: end;">
+          <button type="button" class="btn btn-success" (click)="addOrUpdateChoice()">
+            {{ choiceEditIndex !== null ? (isArabic ? 'تحديث' : 'Update') : '+' }}
+          </button>
+        </div>
+      </div>
+      <div class="choice-group" style="margin-top: 8px;">
+        <span class="choice-chip" *ngFor="let c of choiceOptions; let i = index" [class.active]="choiceEditIndex === i" (click)="editChoiceAt(i)">
+          <span class="chip-text">{{ c.ar }} / {{ c.en }}<span class="choice-add" *ngIf="c.add"> +₪{{ c.add }}</span></span>
+          <button type="button" class="chip-close" (click)="removeChoiceAt(i, $event)">×</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="button-group">
+  <button (click)="saveChanges()" class="btn btn-success" [disabled]="uploading" [attr.aria-busy]="uploading ? 'true' : null">
+    {{ isArabic ? 'حفظ التغييرات' : 'Save Changes' }}
+  </button>
+  <button (click)="selectedItem = null; selectedItemId = ''" class="btn btn-secondary">
+    {{ isArabic ? 'إلغاء' : 'Cancel' }}
+  </button>
+  <button (click)="deleteItem()" class="btn btn-danger">
+    {{ isArabic ? 'حذف' : 'Delete' }}
+  </button>
+</div>
+  </div>
+</div>

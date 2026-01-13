@@ -1,0 +1,35 @@
+.employee-list {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Smaller, cleaner card design */
+.employee-card {
+  border: 1px solid #e8e8e8;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.employee-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.employee-card img {
+  border: 2px solid #eee;
+}
+
+h5 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .employee-list {
+    margin-top: 1.5rem;
+  }
+
+  .employee-card {
+    max-width: 100%;
+  }
+}

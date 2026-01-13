@@ -1,0 +1,310 @@
+<div class="container py-4" [attr.dir]="isArabic ? 'rtl' : 'ltr'">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="mb-0">{{ isArabic ? 'إحصائيات' : 'Statistics' }} — {{ getRestaurantDisplayName() }}</h2>
+      <small class="text-muted">{{ isArabic ? 'عرض الأداء والمقاييس' : 'Performance and metrics' }}</small>
+    </div>
+    <div class="clock text-end">
+      <div class="fw-semibold">{{ now | date: (isArabic ? 'EEEE، d MMMM y' : 'EEE, MMM d, y') }}</div>
+      <small class="text-primary">{{ now | date: 'HH:mm:ss' }}</small>
+    </div>
+  </div>
+
+  <!-- Overview full-width bar -->
+  <div class="card shadow-sm mb-3 fade-in">
+    <div class="card-header d-flex align-items-center gap-2">
+      <i class="bi bi-speedometer2"></i>
+      <span>{{ isArabic ? 'نظرة عامة' : 'Overview' }}</span>
+    </div>
+    <div class="card-body">
+      <div class="overview-grid">
+        <div class="tile tile-blue">
+          <i class="bi bi-people"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'رصيد الموظفين' : 'Employees Balance' }}</div>
+            <div class="value">₪ {{ overview.employeesBalance | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-cyan">
+          <i class="bi bi-truck"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'رصيد المورّدين' : 'Suppliers Balance' }}</div>
+            <div class="value">₪ {{ overview.suppliersBalance | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-lime">
+          <i class="bi bi-person-vcard"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'رصيد الزبائن' : 'Customers Balance' }}</div>
+            <div class="value">₪ {{ overview.customersBalance | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-purple">
+          <i class="bi bi-bank"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'أرصدة البنوك' : 'Bank Balances' }}</div>
+            <div class="value">₪ {{ overview.bankBalances | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-rose">
+          <i class="bi bi-ui-checks-grid"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'رصيد الشيكات' : 'Checks Balance' }}</div>
+            <div class="value">₪ {{ overview.checksBalance | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-amber">
+          <i class="bi bi-cash-coin"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'نقد بالصندوق' : 'Cash on Hand' }}</div>
+            <div class="value">₪ {{ overview.cashOnHand | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-red">
+          <i class="bi bi-credit-card"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'إجمالي المصروفات' : 'Total Expenses' }}</div>
+            <div class="value">₪ {{ overview.totalExpenses | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-teal">
+          <i class="bi bi-bag-check"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'إجمالي المشتريات' : 'Total Purchases' }}</div>
+            <div class="value">₪ {{ overview.totalPurchases | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-yellow">
+          <i class="bi bi-ticket-detailed"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'إجمالي الخصومات' : 'Total Discounts' }}</div>
+            <div class="value">₪ {{ overview.totalDiscounts | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="tile tile-green">
+          <i class="bi bi-currency-dollar"></i>
+          <div class="meta">
+            <div class="label">{{ isArabic ? 'إيرادات المبيعات' : 'Sales Revenue' }}</div>
+            <div class="value">₪ {{ overview.salesRevenue | number:'1.0-0' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8 order-2 order-lg-1">
+      <div class="card h-100 shadow-sm fade-in" style="height: 500px!important;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-graph-up"></i>
+            <span>{{ isArabic ? 'الإيرادات' : 'Revenue' }}</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <mat-form-field appearance="outline" style="width: 160px;">
+              <mat-label>{{ isArabic ? 'المدة' : 'Range' }}</mat-label>
+              <mat-select panelClass="menu-select-panel" [(ngModel)]="revenueScale" (selectionChange)="refreshAllCharts()">
+                <mat-option value="day">{{ isArabic ? 'يومي' : 'Daily' }}</mat-option>
+                <mat-option value="week">{{ isArabic ? 'أسبوعي' : 'Weekly' }}</mat-option>
+                <mat-option value="month">{{ isArabic ? 'شهري' : 'Monthly' }}</mat-option>
+                <mat-option value="year">{{ isArabic ? 'سنوي' : 'Yearly' }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="card-body chart-md">
+          <canvas #revenueChartCanvas></canvas>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-6">
+          <div class="card shadow-sm fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-ui-checks"></i>
+                <span>{{ isArabic ? 'مبيعات حسب الفئات' : 'Sales by Categories' }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <mat-form-field appearance="outline" style="width: 150px;">
+                  <mat-label>{{ isArabic ? 'المدة' : 'Range' }}</mat-label>
+                  <mat-select panelClass="menu-select-panel" [(ngModel)]="categoryScale" (selectionChange)="refreshAllCharts()">
+                    <mat-option value="day">{{ isArabic ? 'يومي' : 'Daily' }}</mat-option>
+                    <mat-option value="week">{{ isArabic ? 'أسبوعي' : 'Weekly' }}</mat-option>
+                    <mat-option value="month">{{ isArabic ? 'شهري' : 'Monthly' }}</mat-option>
+                    <mat-option value="year">{{ isArabic ? 'سنوي' : 'Yearly' }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                
+              </div>
+            </div>
+            <div class="card-body chart-lg">
+              <canvas #categoryChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-columns-gap"></i>
+                <span>{{ isArabic ? 'مبيعات حسب النوع' : 'Sales by Type' }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <mat-form-field appearance="outline" style="width: 150px;">
+                  <mat-label>{{ isArabic ? 'المدة' : 'Range' }}</mat-label>
+                  <mat-select panelClass="menu-select-panel" [(ngModel)]="typeScale" (selectionChange)="refreshAllCharts()">
+                    <mat-option value="day">{{ isArabic ? 'يومي' : 'Daily' }}</mat-option>
+                    <mat-option value="week">{{ isArabic ? 'أسبوعي' : 'Weekly' }}</mat-option>
+                    <mat-option value="month">{{ isArabic ? 'شهري' : 'Monthly' }}</mat-option>
+                    <mat-option value="year">{{ isArabic ? 'سنوي' : 'Yearly' }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="card-body chart-lg">
+              <canvas #typeChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card shadow-sm fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <span>{{ isArabic ? 'العناصر حسب الفئة' : 'Items by Category' }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <mat-form-field appearance="outline" style="width: 220px;">
+                  <mat-label>{{ isArabic ? 'الفئة' : 'Category' }}</mat-label>
+                  <mat-select panelClass="menu-select-panel" [(ngModel)]="selectedItemsCategoryKey" (selectionChange)="refreshAllCharts()">
+                    <mat-option *ngFor="let c of categoryList; trackBy: trackByKey" [value]="c.key">{{ c.label }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" style="width: 150px;">
+                  <mat-label>{{ isArabic ? 'المدة' : 'Range' }}</mat-label>
+                  <mat-select panelClass="menu-select-panel" [(ngModel)]="itemsScale" (selectionChange)="refreshAllCharts()">
+                    <mat-option value="day">{{ isArabic ? 'يومي' : 'Daily' }}</mat-option>
+                    <mat-option value="week">{{ isArabic ? 'أسبوعي' : 'Weekly' }}</mat-option>
+                    <mat-option value="month">{{ isArabic ? 'شهري' : 'Monthly' }}</mat-option>
+                    <mat-option value="year">{{ isArabic ? 'سنوي' : 'Yearly' }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="card-body chart-lg">
+              <canvas #itemsChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+
+      <div class="card shadow-sm mt-3 fade-in" style="padding-bottom: 10em;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-receipt"></i>
+            <span>{{ isArabic ? 'قائمة الطلبات' : 'Order List' }}</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <mat-form-field appearance="outline" style="width: 200px;">
+              <mat-label>{{ isArabic ? 'اليوم' : 'Day' }}</mat-label>
+              <input matInput [matDatepicker]="picker" (dateChange)="onMatDateChange($event)">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" style="width: 240px;">
+              <mat-label>{{ isArabic ? 'ابحث برقم الفاتورة' : 'Search by invoice id' }}</mat-label>
+              <input matInput [(ngModel)]="orderSearch" />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>{{ isArabic ? 'الطاولة' : 'Table' }}</th>
+                <th>{{ isArabic ? 'الوقت' : 'Time' }}</th>
+                <th>{{ isArabic ? 'القيمة' : 'Amount' }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let o of filteredOrders; trackBy: trackById">
+                <tr class="order-row">
+                  <td class="text-muted">#{{ o.id }}</td>
+                  <td>{{ o.tableName || o.tableId || '-' }}</td>
+                  <td>{{ (o.createdAt || o.ts) | date: 'HH:mm' }}</td>
+                  <td class="fw-semibold">₪ {{ (o.total || 0) | number:'1.2-2' }}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-link" (click)="toggleExpand(o.id)">
+                      <i class="bi" [class.bi-chevron-down]="!isExpanded(o.id)" [class.bi-chevron-up]="isExpanded(o.id)"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="isExpanded(o.id)">
+                  <td colspan="5" class="bg-body-tertiary">
+                    <div class="p-2" [@expandCollapse]>
+                      <div class="small text-muted mb-2">{{ isArabic ? 'العناصر' : 'Items' }}</div>
+                      <div class="row row-cols-1 row-cols-md-2 g-2">
+                        <div class="col" *ngFor="let it of orderItemsArray(o); trackBy: trackByKey">
+                          <div class="d-flex justify-content-between border rounded p-2">
+                            <div>
+                              <div class="fw-semibold">{{ getItemDisplayName(it) }}</div>
+                              <small class="text-muted" *ngIf="it.choiceEn || it.choiceAr">{{ isArabic ? it.choiceAr || it.choiceEn : it.choiceEn || it.choiceAr }}</small>
+                            </div>
+                            <div class="text-end">
+                              <div>× {{ it.quantity || 1 }}</div>
+                              <small class="text-muted">₪ {{ (it.unitPrice || it.price || 0) | number:'1.2-2' }}</small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer text-center" *ngIf="orders.length > orderPageSize">
+          <button class="btn btn-outline-secondary btn-sm" (click)="loadMoreOrders()">{{ isArabic ? 'حمّل المزيد' : 'Load older' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 order-1 order-lg-2">
+      <div class="card shadow-sm mt-3 fade-in">
+        <div class="card-header">
+          {{ isArabic ? 'الإحصاءات' : 'Counts' }}
+        </div>
+        <div class="card-body">
+          <div class="counts-grid">
+            <div class="count-item"><i class="bi bi-hash"></i><div><div class="label">{{ isArabic ? 'عدد الفواتير' : 'Invoices to date' }}</div><div class="value">{{ counts.invoicesToDate }}</div></div></div>
+            <div class="count-item"><i class="bi bi-grid"></i><div><div class="label">{{ isArabic ? 'عدد الطاولات' : 'Tables' }}</div><div class="value">{{ counts.tableCount }}</div></div></div>
+            <div class="count-item"><i class="bi bi-people"></i><div><div class="label">{{ isArabic ? 'عدد الزبائن' : 'Customers' }}</div><div class="value">{{ counts.customerCount }}</div></div></div>
+            <div class="count-item"><i class="bi bi-basket"></i><div><div class="label">{{ isArabic ? 'عدد الأصناف' : 'Items' }}</div><div class="value">{{ counts.itemCount }}</div></div></div>
+            <div class="count-item"><i class="bi bi-tags"></i><div><div class="label">{{ isArabic ? 'عدد الفئات' : 'Categories' }}</div><div class="value">{{ counts.categoryCount }}</div></div></div>
+            <div class="count-item"><i class="bi bi-person"></i><div><div class="label">{{ isArabic ? 'عدد الموظفين' : 'Employees' }}</div><div class="value">{{ counts.employeeCount }}</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3 fade-in">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-stars"></i>
+          <span>{{ isArabic ? 'العناصر الأكثر مبيعًا' : 'Best Selling Items' }}</span>
+        </div>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item d-flex justify-content-between" *ngFor="let it of getTopSelling(8); trackBy: trackByKey">
+            <div>{{ it.label }}</div>
+            <div class="text-muted">× {{ it.count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

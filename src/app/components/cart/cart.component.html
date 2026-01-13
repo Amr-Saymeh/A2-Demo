@@ -1,0 +1,156 @@
+<div class="cart-fullpage" [attr.dir]="isArabic ? 'rtl' : 'ltr'">
+  <header class="cart-header">
+    <button class="btn-icon" aria-label="close" (click)="goBack()">✕</button>
+    <h3 class="title">{{ isArabic ? 'سلة المشتريات' : 'Your Cart' }}</h3>
+  </header>
+
+  <main class="cart-body">
+    <!-- Unordered / In Cart -->
+    <section *ngIf="unordered.length" class="cart-section">
+      <div class="section-title">{{ isArabic ? 'في السلة' : 'In Cart' }}</div>
+
+      <article class="item-card" *ngFor="let r of unordered; trackBy: trackByKey">
+        <img class="thumb" [src]="getItemImage(r.item.name) || ''" alt="item" (click)="openOrderModal(r)" />
+        <div class="meta">
+          <div class="row1">
+            <div class="name">
+              {{ displayName(r.item.name) }}
+              <span class="badge badge-unordered status-chip">{{ isArabic ? 'في السلة' : 'In cart' }}</span>
+            </div>
+            <div class="price-chip">{{ getUnitPrice(r) | number:'1.0-2' }}₪</div>
+          </div>
+          <!-- Editable choices for unordered items -->
+          <div class="choice-group" *ngIf="hasChoicesForOrder(r)">
+            <span class="choice-chip"
+                  *ngFor="let c of getChoiceDisplayStructured(r.item.name); let i = index"
+                  [class.active]="getSelectedChoiceIndex(r) === i"
+                  (click)="selectChoiceForOrder(r, i)">{{ c.label }}<span class="choice-add" *ngIf="c.add"> +₪{{ c.add }}</span></span>
+          </div>
+          <div class="row2">
+            <div class="row2-left">
+              <div class="qty-ctrl">
+                <button class="round minus" (click)="dec(r.key, r.item.quantity||1, false)">−</button>
+                <input class="qty-input" type="number" [value]="r.item.quantity || 1" min="1" (change)="setQty(r.key, +$any($event.target).value)" />
+                <button class="round plus" (click)="inc(r.key, r.item.quantity||1, false)">+</button>
+              </div>
+
+              <button class="btn btn-sm btn-outline-secondary" style="margin: 5px;" (click)="toggleNotes(r.key)">
+                {{ isArabic ? 'ملاحظات' : 'Notes' }}
+              </button>
+            </div>
+
+            <div class="row2-right">
+              <button class="btn-remove" (click)="remove(r.key, false)">
+                {{ isArabic ? 'حذف' : 'Remove' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="notes-panel" *ngIf="expandedNotes.has(r.key)">
+            <textarea class="notes-input" [placeholder]="isArabic ? 'أضف ملاحظات...' : 'Add notes...'"
+                      [(ngModel)]="notesDrafts[r.key]"
+                      (blur)="saveNotes(r.key, notesDrafts[r.key], false)"></textarea>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Submitted / Read-only -->
+    <section *ngIf="submitted.length" class="cart-section">
+      <div class="section-title">{{ isArabic ? 'تم الطلب' : 'Submitted' }}</div>
+
+      <article class="item-card submitted" *ngFor="let r of submitted; trackBy: trackByKey">
+        <img class="thumb" [src]="getItemImage(r.item.name) || ''" alt="item" (click)="openOrderModal(r)" />
+        <div class="meta">
+          <div class="row1">
+            <div class="name">{{ displayName(r.item.name) }}</div>
+            <div class="price-chip">{{ getUnitPrice(r) | number:'1.0-2' }}₪</div>
+          </div>
+          <!-- Readonly choice display for submitted items -->
+          <div class="choice-group" *ngIf="hasChoicesForOrder(r)">
+            <ng-container *ngIf="displaySelectedChoice(r) as sc">
+              <span class="choice-chip readonly active">{{ sc.label }}<span class="choice-add" *ngIf="sc.add"> +₪{{ sc.add }}</span></span>
+            </ng-container>
+          </div>
+          <div class="row2">
+            <div class="state">
+              <span class="badge" [ngClass]="{
+                'badge-unordered': (r.item.state||'unordered')==='unordered',
+                'badge-ordered': (r.item.state||'unordered')==='ordered',
+                'badge-done': (r.item.state||'unordered')==='done'
+              }">
+                {{ (r.item.state||'ordered')==='done' ? (isArabic ? 'تم التقديم' : 'Served') : (isArabic ? 'تم الطلب' : 'Ordered') }}
+              </span>
+            </div>
+            <div class="qty readonly">× {{ r.item.quantity || 1 }}</div>
+          </div>
+          <div class="notes-view" *ngIf="r.item.details">{{ r.item.details }}</div>
+        </div>
+      </article>
+    </section>
+
+    <div class="empty" *ngIf="rows.length === 0">
+      {{ isArabic ? 'سلتك فارغة.' : 'Your cart is empty.' }}
+    </div>
+  </main>
+
+  <footer class="cart-footer">
+    <div class="summary">
+      <div class="label">{{ isArabic ? 'المجموع' : 'Total' }}</div>
+      <div class="value">{{ subtotal | number:'1.0-2' }}₪</div>
+    </div>
+    <button class="btn-confirm" [disabled]="!unordered.length" (click)="confirmOrder()">
+      {{ !unordered.length ? (isArabic ? 'تم تأكيد الطلب' : 'Order Confirmed') : (isArabic ? 'تأكيد الطلب' : 'Confirm Order') }}    </button>
+  </footer>
+  
+  <!-- Order Modal -->
+  <div class="order-modal-overlay" *ngIf="showOrderModal" (click)="closeOrderModal()" [attr.dir]="isArabic ? 'rtl' : 'ltr'">
+    <div class="order-modal" (click)="$event.stopPropagation()" *ngIf="modalRow as mr">
+      <button type="button" class="btn-close" (click)="closeOrderModal()"></button>
+      <div class="modal-image">
+        <img [src]="getItemImage(mr.item.name) || ''" alt="preview" />
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="mb-0">{{ displayName(mr.item.name) }}</h3>
+          <div class="price-chip">{{ modalUnitPrice | number:'1.0-2' }}₪</div>
+        </div>
+
+        <!-- Choices -->
+        <div *ngIf="getChoiceDisplayStructured(mr.item.name).length" class="mb-3">
+          <h6 class="mb-2">{{ isArabic ? 'اختر خياراً:' : 'Select a choice:' }}</h6>
+          <div class="choice-group">
+            <span class="choice-chip"
+                  *ngFor="let c of getChoiceDisplayStructured(mr.item.name); let i = index"
+                  [class.active]="modalChoiceIndex === i"
+                  (click)="selectChoiceInModal(i)">{{ c.label }}<span class="choice-add" *ngIf="c.add"> +₪{{ c.add }}</span></span>
+          </div>
+        </div>
+
+        <!-- Quantity & Total -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div class="qty-ctrl">
+            <button type="button" class="round minus" (click)="modalQty = Math.max(1, modalQty - 1)" [disabled]="modalLocked">−</button>
+            <input class="qty-input" type="number" [value]="modalQty" min="1" (change)="modalQty = Math.max(1, +$any($event.target).value)" [disabled]="modalLocked" />
+            <button type="button" class="round plus" (click)="modalQty = modalQty + 1" [disabled]="modalLocked">+</button>
+          </div>
+          <div class="total-price">
+            <small>{{ isArabic ? 'المجموع' : 'Total' }}</small>
+            <div class="h5 mb-0">{{ (modalUnitPrice || 0) * (modalQty || 1) | number:'1.0-2' }}₪</div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-3">
+          <div class="mt-2">
+            <textarea class="form-control" rows="3" [(ngModel)]="modalNotes" [placeholder]="isArabic ? 'اكتب ملاحظاتك هنا...' : 'Write your notes here...'" [disabled]="modalLocked"></textarea>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-order w-100" (click)="saveOrderModal()" [disabled]="modalLocked || (getChoiceDisplayList(mr.item.name).length && modalChoiceIndex === null)">
+          {{ isArabic ? 'حفظ' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,428 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
+/* Global styles for Talat Yafa menu application */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Main color palette */
+  --primary-color: #e94e1b;       /* Vibrant orange */
+  --secondary-color: #2c3e50;     /* Dark blue-gray */
+  --accent-color: #27ae60;        /* Fresh green */
+  --dark-color: #1a1a1a;          /* Almost black */
+  --light-color: #f9f9f9;         /* Off-white */
+  --text-color: #333333;          /* Dark gray for text */
+  --muted-color: #7f8c8d;         /* Muted gray for secondary text */
+  --card-bg: #ffffff;             /* White for cards */
+  --section-bg: #f5f7fa;          /* Light gray for section backgrounds */
+  
+  /* Shadows and effects */
+  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  --subtle-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  
+  /* Transitions */
+  --transition-fast: all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+  
+  /* Border radius */
+  --radius-small: 6px;
+  --radius-medium: 12px;
+  --radius-large: 20px;
+  --radius-round: 50%;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2.5rem;
+  --spacing-xl: 4rem;
+}
+
+/* Base styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--light-color);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--secondary-color);
+}
+
+h1 {
+  font-size: 2.8rem;
+}
+
+h2 {
+  font-size: 2.4rem;
+}
+
+h3 {
+  font-size: 1.8rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+p {
+  margin-bottom: 1.2rem;
+}
+
+.lead {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--muted-color);
+}
+
+/* Links */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition-normal);
+  position: relative;
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--radius-medium);
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  transition: var(--transition-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  font-family: "Tajawal","Poppins",sans-serif;
+}
+.mb-0{
+  font-family: "Tajawal","Poppins",sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--subtle-shadow);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #c73b0e; /* Darker version of primary color */
+  border-color: #c73b0e;
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-accent {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+/* Containers and sections */
+.section {
+  padding: var(--spacing-xl) 0;
+  position: relative;
+}
+
+.section-light {
+  background-color: var(--light-color);
+}
+
+.section-dark {
+  background-color: var(--secondary-color);
+  color: var(--light-color);
+}
+
+.section-colored {
+  background-color: var(--section-bg);
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition-normal);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Section headers */
+.section-header {
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+}
+
+.divider {
+  height: 3px;
+  width: 60px;
+  background-color: var(--primary-color);
+  margin: 1rem auto 1.5rem;
+  position: relative;
+}
+
+.divider:before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 0;
+  height: 3px;
+  width: 10px;
+  background-color: var(--accent-color);
+}
+
+/* Product cards */
+.product-card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition-normal);
+  height: 100%;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--hover-shadow);
+}
+
+.product-image {
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+}
+
+.product-image:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
+  z-index: 1;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-slow);
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.08);
+}
+
+.product-details {
+  padding: var(--spacing-md);
+  position: relative;
+}
+
+.product-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--secondary-color);
+  font-family: 'Playfair Display', serif;
+}
+
+.price-tag {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-large);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: var(--subtle-shadow);
+}
+
+.ingredients h6 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--secondary-color);
+}
+
+.ingredients ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0;
+}
+
+.ingredients li {
+  margin-bottom: 0.2rem;
+  color: var(--muted-color);
+  position: relative;
+}
+.display-4 {
+color: #dce0e0;
+}
+.mb-4 {
+    color:#212529;
+}
+.lead{
+  color: #d7e0e0;
+}
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.8s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.8s ease-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.3rem; }
+  .section { padding: var(--spacing-lg) 0; }
+  .product-image { height: 180px; }
+  
+  /* Mobile-specific adjustments */
+  .product-card {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  /* Ensure product cards don't get too tall on mobile */
+  .product-details {
+    padding: var(--spacing-sm);
+  }
+  
+  /* Adjust spacing for mobile bottom nav */
+  body {
+    padding-bottom: 60px;
+  }
+}
+
+/* Category-specific styling */
+.category-container {
+  background-color: var(--section-bg);
+  padding: var(--spacing-lg) 0;
+  position: relative;
+}
+
+/* Add subtle background patterns */
+.category-container:nth-child(odd):before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(var(--primary-color) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .product-title,
+[dir="rtl"] .ingredients h6,
+[dir="rtl"] .section-header h2 {
+  font-family: 'Tajawal', serif;
+}
+
+[dir="rtl"] .divider:before {
+  left: auto;
+  right: -15px;
+}
+
+[dir="rtl"] .ingredients ul {
+  padding-right: 1.2rem;
+  padding-left: 0;
+}
+
+[dir="rtl"] .navbar-nav {
+  padding-right: 0;
+}
+
+/* Arabic font adjustments */
+[dir="rtl"] body,
+[dir="rtl"] .lead,
+[dir="rtl"] p,
+[dir="rtl"] .btn,
+[dir="rtl"] .nav-link {
+  font-family: 'Tajawal', sans-serif;
+  letter-spacing: 0;
+}
+
+/* Utility classes */
+.text-primary { color: var(--primary-color) !important; }
+.text-accent { color: var(--accent-color) !important; }
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-accent { background-color: var(--accent-color) !important; }
+.shadow-sm { box-shadow: var(--subtle-shadow) !important; }
+.shadow-md { box-shadow: var(--card-shadow) !important; }
+.shadow-lg { box-shadow: var(--hover-shadow) !important; }
+
+/* Material tweaks for compact header controls */
+.card-header .mat-mdc-form-field{ --mdc-outlined-text-field-outline-color:#e5e7eb}
+.card-header .mat-mdc-form-field-subscript-wrapper{display:none}
+
+/* Language-specific utility classes */
+.rtl-only { display: none; }
+.ltr-only { display: block; }
+
+[dir="rtl"] .rtl-only { display: block; }
+[dir="rtl"] .ltr-only { display: none; }
+
+.menu-select-panel{border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:4px 0;max-height:300px}
+.menu-select-panel .mat-mdc-option{font-size:.9rem;border-radius:8px;margin:2px 6px;padding:6px 12px}
+.menu-select-panel .mat-mdc-option:hover{background:#f8fafc}
+.menu-select-panel .mat-mdc-option.mdc-list-item--activated{background:#f1f5f9}
+.menu-select-panel .mat-mdc-option.mdc-list-item--selected{background:#eef2ff;color:#3730a3}
+.menu-select-panel::-webkit-scrollbar{width:8px}
+.menu-select-panel::-webkit-scrollbar-track{background:transparent}
+.menu-select-panel::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+.cdk-overlay-container{z-index:1060}
