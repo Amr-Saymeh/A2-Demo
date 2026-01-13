@@ -16,6 +16,7 @@
             "outputPath": "dist/mass-menu",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "baseHref": "/A2-Demo/",
             "polyfills": [
               "zone.js"
             ],

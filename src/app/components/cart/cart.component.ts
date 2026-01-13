@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Component, OnDestroy, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { db } from '../../firebase';
 import { onValue, ref, remove, update } from 'firebase/database';
@@ -31,7 +31,6 @@ interface CartRow { key: string; item: CartItem; }
 })
 export class CartComponent implements OnInit, OnDestroy {
   isArabic = false;
-  // Expose Math for template usage (clamp in bindings)
   Math = Math;
   session: TableSession | null = null;
   private unsub: (() => void) | null = null;
@@ -42,12 +41,9 @@ export class CartComponent implements OnInit, OnDestroy {
   unordered: CartRow[] = [];
   submitted: CartRow[] = [];
 
-  // Collapse state for per-item notes
   expandedNotes = new Set<string>();
-  // Local drafts for notes to avoid focus loss while typing
   notesDrafts: Record<string, string> = {};
 
-  // Order modal state
   showOrderModal = false;
   modalRow: CartRow | null = null;
   modalLocked = false;
@@ -60,9 +56,12 @@ export class CartComponent implements OnInit, OnDestroy {
     private tableSession: TableSessionService,
     private location: Location,
     private menu: MenuService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     this.lang.isArabic$.subscribe(v => (this.isArabic = v));
     this.tableSession.session$.subscribe(sess => {
       this.session = sess;
@@ -76,7 +75,6 @@ export class CartComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ---------- Price and image helpers ----------
   private getMenuItemPrice(name: string): number {
     const it = this.findMenuItemByName(name);
     const p = Number((it?.price as any) ?? 0);
@@ -93,10 +91,7 @@ export class CartComponent implements OnInit, OnDestroy {
   getUnitPrice(row: CartRow): number {
     const state = (row.item.state ?? 'unordered');
     const stored = Number(row.item.unitPrice ?? NaN);
-    if (state !== 'unordered' && !isNaN(stored)) {
-      // For submitted/locked orders, display the stored unitPrice
-      return stored;
-    }
+    if (state !== 'unordered' && !isNaN(stored)) return stored;
     const base = this.getMenuItemPrice(row.item.name || '');
     const selectedIdx = this.getSelectedChoiceIndex(row);
     const add = this.getChoiceAddByIndex(row.item.name || '', selectedIdx >= 0 ? selectedIdx : null);
@@ -108,20 +103,23 @@ export class CartComponent implements OnInit, OnDestroy {
     return (it?.image as any) || null;
   }
 
-  ngOnDestroy(): void { this.detach(); this.detachCategories(); }
+  ngOnDestroy(): void { 
+    this.detach(); 
+    this.detachCategories(); 
+  }
 
   private attach(sess: TableSession) {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     const orderRef = ref(db, `restaurants/${sess.restId}/tables/${sess.tableId}/order`);
     this.unsub = onValue(orderRef, (snap) => {
       const val = (snap.val() || {}) as Record<string, CartItem>;
       const arr: CartRow[] = Object.keys(val).map(key => ({ key, item: val[key] || ({} as CartItem) }));
-      // Sort by timestamp then name for stable order
       arr.sort((a, b) => (a.item.ts || 0) - (b.item.ts || 0) || (a.item.name || '').localeCompare(b.item.name || ''));
       this.rows = arr;
       this.unordered = arr.filter(r => (r.item.state ?? 'unordered') === 'unordered');
       this.submitted = arr.filter(r => (r.item.state ?? 'unordered') !== 'unordered');
 
-      // Refresh drafts without blowing away the one being edited
       const nextDrafts: Record<string, string> = {};
       for (const r of arr) {
         const key = r.key;
@@ -139,6 +137,8 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   private attachCategories(restId: string) {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     this.detachCategories();
     this.categoriesSub = this.menu.getCategories(restId).subscribe(categories => {
       this.categoriesCache = categories;
@@ -156,7 +156,6 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.rows.reduce((acc, r) => acc + (this.getUnitPrice(r) * Number(r.item.quantity || 0)), 0);
   }
 
-  // ---------- Choice helpers ----------
   private findMenuItemByName(name: string): any | null {
     const categories = this.categoriesCache;
     if (!categories || !name) return null;
@@ -189,7 +188,6 @@ export class CartComponent implements OnInit, OnDestroy {
     return list;
   }
 
-  // Structured list with added price (from choiceOptions when available)
   getChoiceDisplayStructured(name: string): { label: string; add: number }[] {
     const it = this.findMenuItemByName(name);
     const opts = Array.isArray((it as any)?.choiceOptions) ? ((it as any).choiceOptions as any[]) : null;
@@ -199,7 +197,6 @@ export class CartComponent implements OnInit, OnDestroy {
         add: Number(o.add) || 0,
       }));
     }
-    // Fallback to legacy string list without added price
     return this.getChoiceDisplayList(name).map(l => ({ label: l, add: 0 }));
   }
 
@@ -219,7 +216,7 @@ export class CartComponent implements OnInit, OnDestroy {
     if (idxEn >= 0) return idxEn;
     const idxAr = targetAr ? ar.findIndex(x => x === targetAr) : -1;
     if (idxAr >= 0) return idxAr;
-    // Fallback: try to match against structured options
+
     const opts = this.getChoiceDisplayStructured(name);
     if (targetEn) {
       const i = opts.findIndex(o => (this.isArabic ? false : o.label === targetEn) || (!this.isArabic && o.label === targetEn));
@@ -246,7 +243,6 @@ export class CartComponent implements OnInit, OnDestroy {
     return v || null;
   }
 
-  // For readonly submitted chips: return selected label + its added price
   displaySelectedChoice(row: CartRow): { label: string; add: number } | null {
     const idx = this.getSelectedChoiceIndex(row);
     if (idx < 0) return null;
@@ -256,7 +252,8 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   selectChoiceForOrder(row: CartRow, index: number) {
-    if (!this.session) return;
+    if (!isPlatformBrowser(this.platformId) || !this.session) return;
+
     const name = row.item.name || '';
     const { en, ar } = this.getChoicePairs(name);
     const choiceEn = en[index] ?? null;
@@ -268,7 +265,6 @@ export class CartComponent implements OnInit, OnDestroy {
     update(ref(db, p), { choiceEn, choiceAr, unitPrice: newUnitPrice });
   }
 
-  // -------- Order Modal --------
   openOrderModal(row: CartRow) {
     this.modalRow = row;
     this.modalLocked = ((row.item.state ?? 'unordered') !== 'unordered');
@@ -278,14 +274,17 @@ export class CartComponent implements OnInit, OnDestroy {
     this.modalChoiceIndex = (idx >= 0 ? idx : null);
     this.showOrderModal = true;
   }
+
   closeOrderModal() {
     this.showOrderModal = false;
     this.modalRow = null;
     this.modalChoiceIndex = null;
   }
+
   get modalChoices(): string[] {
     return this.getChoiceDisplayList(this.modalRow?.item.name || '');
   }
+
   get modalUnitPrice(): number {
     if (!this.modalRow) return 0;
     const name = this.modalRow.item.name || '';
@@ -294,9 +293,12 @@ export class CartComponent implements OnInit, OnDestroy {
     const add = this.getChoiceAddByIndex(name, idx);
     return base + add;
   }
+
   selectChoiceInModal(i: number) { if (!this.modalLocked) this.modalChoiceIndex = i; }
+
   async saveOrderModal() {
-    if (!this.session || !this.modalRow || this.modalLocked) return;
+    if (!isPlatformBrowser(this.platformId) || !this.session || !this.modalRow || this.modalLocked) return;
+
     const base = `restaurants/${this.session.restId}/tables/${this.session.tableId}/order/${this.modalRow.key}`;
     const patch: any = { quantity: Math.max(1, Number(this.modalQty) || 1), details: this.modalNotes || '' };
     if (this.modalChoiceIndex !== null) {
@@ -304,9 +306,9 @@ export class CartComponent implements OnInit, OnDestroy {
       const { en, ar } = this.getChoicePairs(name);
       patch.choiceEn = en[this.modalChoiceIndex] ?? null;
       patch.choiceAr = ar[this.modalChoiceIndex] ?? null;
-      const base = this.getMenuItemPrice(name);
+      const basePrice = this.getMenuItemPrice(name);
       const add = this.getChoiceAddByIndex(name, this.modalChoiceIndex);
-      patch.unitPrice = base + add;
+      patch.unitPrice = basePrice + add;
     }
     await update(ref(db, base), patch);
     this.closeOrderModal();
@@ -316,16 +318,16 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.expandedNotes.has(key)) this.expandedNotes.delete(key);
     else {
       this.expandedNotes.add(key);
-      // Initialize draft when opening
       const r = this.rows.find(x => x.key === key);
       if (r && this.notesDrafts[key] === undefined) this.notesDrafts[key] = r.item.details || '';
     }
   }
 
   async setQty(key: string, qty: number) {
-    if (!this.session) return;
+    if (!isPlatformBrowser(this.platformId) || !this.session) return;
+
     const row = this.rows.find(r => r.key === key);
-    if (row && (row.item.state ?? 'unordered') !== 'unordered') return; // locked
+    if (row && (row.item.state ?? 'unordered') !== 'unordered') return;
     if (qty < 1) qty = 1;
     const p = `restaurants/${this.session.restId}/tables/${this.session.tableId}/order/${key}`;
     await update(ref(db, p), { quantity: qty });
@@ -342,36 +344,33 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   async onNotesInput(key: string, value: string, locked: boolean) {
-    if (locked || !this.session) return;
+    if (!isPlatformBrowser(this.platformId) || locked || !this.session) return;
     const p = `restaurants/${this.session.restId}/tables/${this.session.tableId}/order/${key}`;
     await update(ref(db, p), { details: value || '' });
   }
 
-  // New save method (used on blur) to avoid frequent updates and focus loss
   async saveNotes(key: string, value: string, locked: boolean) {
-    if (locked || !this.session) return;
+    if (!isPlatformBrowser(this.platformId) || locked || !this.session) return;
     const p = `restaurants/${this.session.restId}/tables/${this.session.tableId}/order/${key}`;
     await update(ref(db, p), { details: value || '' });
   }
 
-  // TrackBy to keep textarea nodes stable
   trackByKey(index: number, row: CartRow) { return row.key; }
 
   async remove(key: string, locked: boolean) {
-    if (locked || !this.session) return;
+    if (!isPlatformBrowser(this.platformId) || locked || !this.session) return;
     const p = `restaurants/${this.session.restId}/tables/${this.session.tableId}/order/${key}`;
     await remove(ref(db, p));
   }
 
   async confirmOrder() {
-    if (!this.session || this.unordered.length === 0) return;
+    if (!isPlatformBrowser(this.platformId) || !this.session || this.unordered.length === 0) return;
     const base = `restaurants/${this.session.restId}/tables/${this.session.tableId}/order`;
     for (const r of this.unordered) {
       await update(ref(db, `${base}/${r.key}`), { state: 'ordered'});
     }
   }
 
-  // Resolve the correct display name for a stored order name using the menu cache
   private resolveNameFromMenu(input: string, isArabic: boolean): string | null {
     const categories = this.categoriesCache;
     if (!categories || !input) return null;
@@ -394,7 +393,6 @@ export class CartComponent implements OnInit, OnDestroy {
     return isArabic ? (found.nameArabic || found.name || null) : (found.name || found.nameArabic || null);
   }
 
-  // Public for template: pick proper-language name, fallback to stored
   displayName(storedName: string): string {
     const resolved = this.resolveNameFromMenu(storedName || '', this.isArabic);
     return resolved || storedName;
