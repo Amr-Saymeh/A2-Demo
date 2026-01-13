@@ -13,7 +13,8 @@ import { filter } from 'rxjs/operators';
   standalone: true,
   imports: [RouterModule, CommonModule],
   template: `
-    <nav class="navbar navbar-expand-lg sticky-top px-4" [ngClass]="{'navbar-dark': !isLightTheme, 'navbar-light bg-light': isLightTheme, 'signed-in': (signedIn && session)}">
+    @if (!isAdminRoute) {
+    <nav class="navbar navbar-expand-lg sticky-top px-4" [ngClass]="{'navbar-dark': !isLightTheme, 'navbar-light bg-light': isLightTheme, 'signed-in': (signedIn && session), 'arabic-font': isArabic}">
       <div class="container">
         <!-- Left (mobile, signed-in): Call a waiter -->
         @if (signedIn && session) {
@@ -50,8 +51,38 @@ import { filter } from 'rxjs/operators';
         </div>
       </div>
     </nav>
+    }
+
+    @if (isAdminRoute) {
+      <aside class="admin-sidebar" [attr.dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic}">
+        <div class="sidebar-header d-flex align-items-center justify-content-between">
+          <a class="sidebar-brand" [routerLink]="['/', currentRestId]">{{ isArabic ? 'طلة يافا' : 'Talat Yafa' }}</a>
+          <button (click)="toggleLanguage()" class="btn btn-sm btn-outline-secondary">{{ isArabic ? 'English' : 'عربي' }}</button>
+        </div>
+        <div class="sidebar-section">
+          <div class="section-title">{{ isArabic ? 'عام' : 'GENERAL' }}</div>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'dashboard']" routerLinkActive="active"><i class="fas fa-table me-2"></i>{{ isArabic ? 'لوحة التحكم' : 'Dashboard' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'stats']" routerLinkActive="active"><i class="fas fa-chart-line me-2"></i>{{ isArabic ? 'الإحصائيات' : 'Stats' }}</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="section-title">{{ isArabic ? 'الأدوات' : 'TOOLS' }}</div>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'ManageMenuComponent']" routerLinkActive="active"><i class="fas fa-utensils me-2"></i>{{ isArabic ? 'إدارة القائمة' : 'Manage Menu' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'EditItemComponent']" routerLinkActive="active"><i class="fas fa-pen me-2"></i>{{ isArabic ? 'تعديل عنصر' : 'Edit Item' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'kitchen-orders']" routerLinkActive="active"><i class="fas fa-concierge-bell me-2"></i>{{ isArabic ? 'طلبات المطبخ' : 'Kitchen Orders' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'bar-orders']" routerLinkActive="active"><i class="fas fa-glass-martini-alt me-2"></i>{{ isArabic ? 'طلبات البار' : 'Bar Orders' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'hookah-orders']" routerLinkActive="active"><i class="fas fa-smoking me-2"></i>{{ isArabic ? 'طلبات الأرجيلة' : 'Hookah Orders' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'ordering-dashboard']" routerLinkActive="active"><i class="fas fa-clipboard-list me-2"></i>{{ isArabic ? 'لوحة الطلبات' : 'Ordering Dashboard' }}</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="section-title">{{ isArabic ? 'الدعم' : 'SUPPORT' }}</div>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'attendance']" routerLinkActive="active"><i class="fas fa-user-check me-2"></i>{{ isArabic ? 'الحضور' : 'Attendance' }}</a>
+          <a class="sidebar-link" [routerLink]="['/', currentRestId, 'add-employee']" routerLinkActive="active"><i class="fas fa-user-plus me-2"></i>{{ isArabic ? 'إضافة موظف' : 'Add Employee' }}</a>
+        </div>
+      </aside>
+    }
     
     <!-- Category Navigation for Mobile -->
+    @if (!isAdminRoute) {
     <div class="category-nav-mobile" [dir]="isArabic ? 'rtl' : 'ltr'">
       <div class="container">
         <div class="scrollable-nav">
@@ -67,8 +98,9 @@ import { filter } from 'rxjs/operators';
         </div>
       </div>
     </div>
+    }
     
-    <main [dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic}">
+    <main [dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic, 'admin-content': isAdminRoute}">
       <router-outlet></router-outlet>
     </main>
     
@@ -268,6 +300,41 @@ import { filter } from 'rxjs/operators';
     }
 
 
+    /* Admin Sidebar */
+    .admin-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100vh;
+      background: #ffffff;
+      border-right: 1px solid #eee;
+      padding: 16px;
+      overflow-y: auto;
+      z-index: 1040;
+    }
+    .sidebar-header { padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
+    .sidebar-brand { font-weight: 700; color: var(--secondary-color); text-decoration: none; }
+    .section-title { font-size: 0.75rem; letter-spacing: .08em; color: #9ca3af; padding: 12px 0 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: #111827; text-decoration: none; border-radius: 8px; }
+    .sidebar-section .sidebar-link + .sidebar-link { border-top: 1px solid #eee; }
+    .sidebar-link:hover { background: #f3f4f6; }
+    .sidebar-link.active { background: #f3f4f6; font-weight: 600; }
+    .sidebar-section + .sidebar-section { border-top: 1px solid #f0f0f0; margin-top: 12px; padding-top: 12px; }
+    .admin-content { margin-left: 260px; }
+    /* Keep sidebar fixed and scrollable on smaller screens */
+    @media (max-width: 991.98px) {
+      .admin-content { margin-left: 260px; }
+      .admin-sidebar { position: fixed; width: 260px; height: 100vh; overflow-y: auto; top: 0; left: 0; border-right: 1px solid #eee; }
+    }
+
+    /* Desktop navbar: horizontal scroll for categories */
+    .navbar .navbar-nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .navbar .nav-item { flex: 0 0 auto; }
+    .navbar .navbar-nav::-webkit-scrollbar { height: 6px; }
+    .navbar .navbar-nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+
+
 
     /* RTL Support */
     [dir="rtl"] .ms-auto {
@@ -322,6 +389,20 @@ export class AppComponent implements OnInit {
   session: TableSession | null = null;
   waiterRequested = false;
   currentRestId: string = '';
+  isAdminRoute = false;
+  private adminPages = new Set([
+    'dashboard',
+    'stats',
+    'ManageMenuComponent',
+    'EditItemComponent',
+    'kitchen-orders',
+    'bar-orders',
+    'hookah-orders',
+    'ordering-dashboard',
+    'attendance',
+    'add-employee',
+    'control-board'
+  ]);
 
   constructor(private languageService: LanguageService, private router: Router, private tableSession: TableSessionService, private route: ActivatedRoute) {}
 
@@ -338,12 +419,14 @@ export class AppComponent implements OnInit {
 
     const seg = (this.router.url.split('/')[1] || '').trim();
     if (seg && seg !== 'cart') { this.currentRestId = seg; }
+    this.updateAdminRoute(this.router.url);
 
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
       const first = (this.router.url.split('/')[1] || '').trim();
       if (first && first !== 'cart') {
         this.currentRestId = first;
       }
+      this.updateAdminRoute(this.router.url);
     });
 
     // Fetch categories for 'rest1' using vanilla Firebase service to avoid DI issues at root
@@ -366,6 +449,13 @@ export class AppComponent implements OnInit {
 
   toggleLanguage() {
     this.languageService.toggleLanguage();
+  }
+
+  private updateAdminRoute(url: string) {
+    const clean = (url || '').split('#')[0].split('?')[0];
+    const parts = clean.split('/').filter(Boolean); // e.g., ['rest1','dashboard']
+    const page = parts.length >= 2 ? parts[1] : '';
+    this.isAdminRoute = this.adminPages.has(page);
   }
 
   async callWaiter() {

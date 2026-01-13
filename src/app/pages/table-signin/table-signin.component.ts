@@ -50,10 +50,12 @@ export class TableSigninComponent implements OnInit {
 
     try {
       await this.tableSession.signInForTable(restId, tableId);
-      this.router.navigateByUrl('/');
+      this.router.navigate(['/', restId]);
     } catch (e: any) {
       console.error(e);
       this.error = e?.message || 'Failed to sign in for this table.';
     }
   }
 }
+
+

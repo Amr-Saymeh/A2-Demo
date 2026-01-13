@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../services/language.service';
 import { firebaseService } from '../services/restaurant.service';
 import { TableSessionService, TableSession } from '../services/table-session.service';
@@ -16,7 +17,7 @@ interface Category {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, FormsModule],
   template: `
     <div class="hero-banner text-white">
       <div class="overlay d-flex align-items-center justify-content-center text-center">
@@ -35,6 +36,13 @@ interface Category {
         <p class="lead">
           {{ isArabic ? (restaurant?.restArabicPhrase || '') : (restaurant?.restPhrase || '') }}
         </p>
+        <div class="d-flex flex-column align-items-center gap-3 mt-3" style="max-width: 560px; margin: 0 auto;">
+          <a class="btn btn-primary" [routerLink]="['/', (session?.restId || restId || 'rest1'), 'dashboard']">Control Board</a>
+          <div class="w-100 d-flex gap-2 justify-content-center">
+            <input class="form-control" style="max-width: 240px;" [(ngModel)]="tableIdInput" placeholder="Table ID" />
+            <a class="btn btn-secondary" [class.disabled]="!tableIdInput" [routerLink]="['/', (session?.restId || restId || 'rest1'), 't', tableIdInput]">Sign In</a>
+          </div>
+        </div>
         <!-- Explore Menu Navigation -->
         <div class="explore-menu mt-5">
           <h4 class="mb-4" style="color: white;">{{ isArabic ? 'اكتشف نكهاتنا الرائعة' : 'Explore Our Menu' }}</h4>
@@ -148,6 +156,7 @@ export class HomeComponent implements OnInit {
   session: TableSession | null = null;
   signedIn = false;
   restId: string = '';
+  tableIdInput: string = '';
   
 
   constructor(private languageService: LanguageService, private tableSession: TableSessionService, private route: ActivatedRoute) {}
@@ -192,3 +201,6 @@ export class HomeComponent implements OnInit {
     await this.tableSession.checkout();
   }
 }
+
+
+

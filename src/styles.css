@@ -116,6 +116,13 @@ a:hover {
   box-shadow: var(--subtle-shadow);
 }
 
+/* Global Arabic font when Arabic is active */
+html[dir="rtl"],
+body[dir="rtl"],
+.arabic-font {
+  font-family: "Tajawal","Poppins",sans-serif;
+}
+
 .btn-primary:hover, .btn-primary:focus {
   background-color: #c73b0e; /* Darker version of primary color */
   border-color: #c73b0e;
@@ -466,6 +473,8 @@ html {
   overflow-x: hidden;
 }
 
-* {
-  outline: 1px solid red;
-}
+
+/* Anti-horizontal-scroll hardening */
+html, body { overscroll-behavior-x: none; touch-action: pan-y; }
+
+
