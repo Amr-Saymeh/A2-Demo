@@ -3,19 +3,19 @@
     <h1>{{ isArabic ? 'لوحة المطعم' : 'Restaurant Dashboard' }}</h1>
     <p>{{ isArabic ? 'إدارة الطاولات والطلبات في الوقت الحقيقي' : 'Manage tables and orders in real time' }}</p>
   </div>
-<div class="d-flex justify-content-center my-3">
-  <button
-    class="btn"
-    [class.btn-primary]="!todayHistoryExists"
-    [class.btn-danger]="todayHistoryExists"
-    (click)="handleDailyRecord()"
-    [disabled]="isCreatingHistory"
-  >
-    {{ todayHistoryExists
+  <div class="d-flex justify-content-center my-3">
+    <button
+      class="btn"
+      [class.btn-primary]="!todayHistoryExists"
+      [class.btn-danger]="todayHistoryExists"
+      (click)="handleDailyRecord()"
+      [disabled]="isCreatingHistory"
+      >
+      {{ todayHistoryExists
       ? (isArabic ? '🔴 إغلاق سجل اليوم' : '🔴 Close Daily Record')
       : (isArabic ? '🟢 إنشاء سجل اليوم الجديد' : '🟢 Create New Daily Record') }}
-  </button>
-</div>
+    </button>
+  </div>
   <div class="row g-4">
     <!-- Tables List -->
     <div class="col-lg-4">
@@ -27,186 +27,196 @@
         <div class="p-3 border-bottom">
           <div class="d-flex gap-2">
             <input type="text"
-                   class="form-control"
-                   [placeholder]="isArabic ? 'اسم طاولة جديدة' : 'New table name'"
-                   [(ngModel)]="newTableName"
-                   (keyup.enter)="addTable()">
-            <button type="button"
-                    class="btn btn-primary"
-                    [disabled]="!(newTableName && newTableName.trim())"
-                    (click)="addTable()">
-              {{ isArabic ? 'إضافة طاولة' : 'Add Table' }}
-            </button>
-          </div>
-        </div>
-        <ul class="list-group list-group-flush" style="max-height: 70vh; overflow-y: auto;">
-          <li *ngFor="let table of tables"
-              class="list-group-item d-flex justify-content-between align-items-center"
-              (click)="selectTable(table)"
-              [class.active]="selectedTable?.id === table.id">
-            <div class="d-flex flex-column">
-              <span class="fw-semibold">{{ table.name || 'Table' }}</span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="badge" [ngClass]="table.availability ? 'bg-success' : 'bg-danger'">
-                {{ table.availability ? (isArabic ? 'متاح' : 'Available') : (isArabic ? 'مشغولة' : 'Occupied') }}
-              </span>
-              <button class="btn btn-sm btn-outline-secondary"
-                      (click)="$event.stopPropagation(); toggleAvailability(table)">
-                {{ isArabic ? 'تبديل' : 'Toggle' }}
+              class="form-control"
+              [placeholder]="isArabic ? 'اسم طاولة جديدة' : 'New table name'"
+              [(ngModel)]="newTableName"
+              (keyup.enter)="addTable()">
+              <button type="button"
+                class="btn btn-primary"
+                [disabled]="!(newTableName && newTableName.trim())"
+                (click)="addTable()">
+                {{ isArabic ? 'إضافة طاولة' : 'Add Table' }}
               </button>
             </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Orders Section -->
-    <div class="col-lg-8" *ngIf="selectedTable">
-      <div class="card orders-card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            {{ isArabic ? 'الطلبات لـ' : 'Orders for' }} <strong>{{ selectedTable.name || (isArabic ? 'طاولة' : 'Table') }}</strong>
           </div>
-          <button class="btn btn-sm btn-outline-light" (click)="selectedTable = null">{{ isArabic ? 'رجوع' : 'Back' }}</button>
+          <ul class="list-group list-group-flush" style="max-height: 70vh; overflow-y: auto;">
+            @for (table of tables; track table) {
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+                (click)="selectTable(table)"
+                [class.active]="selectedTable?.id === table.id">
+                <div class="d-flex flex-column">
+                  <span class="fw-semibold">{{ table.name || 'Table' }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge" [ngClass]="table.availability ? 'bg-success' : 'bg-danger'">
+                    {{ table.availability ? (isArabic ? 'متاح' : 'Available') : (isArabic ? 'مشغولة' : 'Occupied') }}
+                  </span>
+                  <button class="btn btn-sm btn-outline-secondary"
+                    (click)="$event.stopPropagation(); toggleAvailability(table)">
+                    {{ isArabic ? 'تبديل' : 'Toggle' }}
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
         </div>
-        <div class="card-body">
-          <ul class="list-group mb-3">
-            <li class="list-group-item" *ngFor="let order of selectedTable.order | keyvalue">
-              <div class="d-flex justify-content-between align-items-start">
-                <div class="flex-grow-1 pe-3">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="order-title">{{ displayOrderName(order.value.name) }}</div>
-                    <!-- ✅ Item state badge -->
-                    <small>
-                      <span class="badge clickable"
+      </div>
+
+      <!-- Orders Section -->
+      @if (selectedTable) {
+        <div class="col-lg-8">
+          <div class="card orders-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div>
+                {{ isArabic ? 'الطلبات لـ' : 'Orders for' }} <strong>{{ selectedTable.name || (isArabic ? 'طاولة' : 'Table') }}</strong>
+              </div>
+              <button class="btn btn-sm btn-outline-light" (click)="selectedTable = null">{{ isArabic ? 'رجوع' : 'Back' }}</button>
+            </div>
+            <div class="card-body">
+              <ul class="list-group mb-3">
+                @for (order of selectedTable.order | keyvalue; track order) {
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="flex-grow-1 pe-3">
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="order-title">{{ displayOrderName(order.value.name) }}</div>
+                          <!-- ✅ Item state badge -->
+                          <small>
+                            <span class="badge clickable"
                         [ngClass]="{
                             'bg-info': order.value.state === 'ordered',
                            'bg-warning': order.value.state === 'ready',
                             'bg-success': order.value.state === 'done'
                                }"
-                               (click)="markAsDone({ tableKey: selectedTable!.id, orderKey: order.key, order: order.value })"
-                               >
-                        {{ order.value.state || 'unknown' }}
-                      </span>
-                    </small>
-                  </div>
-                  <!-- Choices -->
-                  <div class="choice-group mt-2" *ngIf="getChoiceDisplayList(order.value.name).length">
-                    <span class="choice-chip"
-                          *ngFor="let c of getChoiceDisplayStructured(order.value.name); let i = index"
-                          [class.active]="getDraftChoiceIndex(order.key, order.value) === i"
-                          (click)="setChoiceDraft(order.key, order.value, i)">{{ c.label }}<span class="choice-add" *ngIf="c.add"> +₪{{ c.add }}</span></span>
-                  </div>
-
-                  <div class="mt-2">
-                    <label class="small">{{ isArabic ? 'تفاصيل' : 'Details' }}</label>
-                    <input type="text" [(ngModel)]="order.value.details"
-                           [placeholder]="isArabic ? 'أدخل التفاصيل' : 'Enter details'"
-                           class="form-control form-control-sm">
-                  </div>
-                </div>
-
-                <div class="text-end ms-3" style="min-width: 180px;">
-                  <input type="number" [(ngModel)]="order.value.quantity" min="0"
-                         class="form-control form-control-sm" />
-                  
-                  <div class="d-flex gap-2 mt-2">
-                    <button class="btn btn-sm btn-primary" style="flex: 1;"
-                            (click)="updateOrder(order.key, order.value.quantity, order.value.details || '')">
-                      {{ isArabic ? 'تحديث' : 'Update' }}
-                    </button>
-                    <button class="btn btn-sm btn-warning" style="flex: 1;"
-                            (click)="deleteOrder(order.key)">
-                      {{ isArabic ? 'حذف' : 'Remove' }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-
-          <!-- Add New Order + Checkout -->
-          <div class="d-flex flex-wrap align-items-stretch gap-2 mb-3">
-            <div class="d-flex flex-wrap gap-2 flex-grow-1">
-              <input type="text" #itemName class="form-control"
-                     [placeholder]="isArabic ? 'اسم الصنف' : 'Item name'"
-                     style="max-width: 260px;" list="menuSuggestions">
-              <datalist id="menuSuggestions">
-                <option *ngFor="let name of menuItemNames" [value]="name"></option>
-              </datalist>
-
-              <input type="number" #itemQty class="form-control"
-                     [placeholder]="isArabic ? 'الكمية' : 'Qty'" min="1"
-                     style="max-width: 120px;">
-              <input type="text" #itemDetails class="form-control"
-                     [placeholder]="isArabic ? 'تفاصيل (اختياري)' : 'Details (optional)'">
-              <button class="btn btn-success"
+                              (click)="markAsDone({ tableKey: selectedTable!.id, orderKey: order.key, order: order.value })"
+                              >
+                              {{ order.value.state || 'unknown' }}
+                            </span>
+                          </small>
+                        </div>
+                        <!-- Choices -->
+                        @if (getChoiceDisplayList(order.value.name).length) {
+                          <div class="choice-group mt-2">
+                            @for (c of getChoiceDisplayStructured(order.value.name); track c; let i = $index) {
+                              <span class="choice-chip"
+                                [class.active]="getDraftChoiceIndex(order.key, order.value) === i"
+                                (click)="setChoiceDraft(order.key, order.value, i)">{{ c.label }}@if (c.add) {
+                                <span class="choice-add"> +₪{{ c.add }}</span>
+                              }</span>
+                            }
+                          </div>
+                        }
+                        <div class="mt-2">
+                          <label class="small">{{ isArabic ? 'تفاصيل' : 'Details' }}</label>
+                          <input type="text" [(ngModel)]="order.value.details"
+                            [placeholder]="isArabic ? 'أدخل التفاصيل' : 'Enter details'"
+                            class="form-control form-control-sm">
+                          </div>
+                        </div>
+                        <div class="text-end ms-3" style="min-width: 180px;">
+                          <input type="number" [(ngModel)]="order.value.quantity" min="0"
+                            class="form-control form-control-sm" />
+                            <div class="d-flex gap-2 mt-2">
+                              <button class="btn btn-sm btn-primary" style="flex: 1;"
+                                (click)="updateOrder(order.key, order.value.quantity, order.value.details || '')">
+                                {{ isArabic ? 'تحديث' : 'Update' }}
+                              </button>
+                              <button class="btn btn-sm btn-warning" style="flex: 1;"
+                                (click)="deleteOrder(order.key)">
+                                {{ isArabic ? 'حذف' : 'Remove' }}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                  <!-- Add New Order + Checkout -->
+                  <div class="d-flex flex-wrap align-items-stretch gap-2 mb-3">
+                    <div class="d-flex flex-wrap gap-2 flex-grow-1">
+                      <input type="text" #itemName class="form-control"
+                        [placeholder]="isArabic ? 'اسم الصنف' : 'Item name'"
+                        style="max-width: 260px;" list="menuSuggestions">
+                        <datalist id="menuSuggestions">
+                          @for (name of menuItemNames; track name) {
+                            <option [value]="name"></option>
+                          }
+                        </datalist>
+                        <input type="number" #itemQty class="form-control"
+                          [placeholder]="isArabic ? 'الكمية' : 'Qty'" min="1"
+                          style="max-width: 120px;">
+                          <input type="text" #itemDetails class="form-control"
+                            [placeholder]="isArabic ? 'تفاصيل (اختياري)' : 'Details (optional)'">
+                            <button class="btn btn-success"
                       (click)="addOrder(itemName.value, +itemQty.value, itemDetails.value);
                                itemName.value=''; itemQty.value=''; itemDetails.value=''">
-                {{ isArabic ? 'إضافة' : 'Add' }}
-              </button>
+                              {{ isArabic ? 'إضافة' : 'Add' }}
+                            </button>
+                          </div>
+                          <div class="ms-auto d-flex align-items-center">
+                            <button class="btn btn-outline-danger"
+                              [disabled]="!hasOrders()"
+                              (click)="checkoutSelectedTable()">
+                              {{ isArabic ? 'إنهاء الحساب' : 'Checkout' }}
+                            </button>
+                          </div>
+                        </div>
+                        <!-- ✅ Total Price Display -->
+                        <div class="text-end mt-3 border-top pt-2">
+                          <strong>{{ isArabic ? 'الإجمالي:' : 'Total:' }}</strong>
+                          <span class="fs-5 fw-bold text-primary">{{ getTotalPrice() | number:'1.2-2' }} ₪</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+              <!-- 🧾 Receipt Modal -->
+              @if (showReceiptModal) {
+                <div
+                  class="modal fade show d-block"
+                  tabindex="-1"
+                  role="dialog"
+                  aria-modal="true"
+                  [ngStyle]="{ background: 'rgba(0,0,0,0.5)' }">
+                  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <div>
+                          <h5 class="modal-title mb-0">{{ restaurantDisplayName }}</h5>
+                          <small class="text-muted d-block">{{ isArabic ? 'فاتورة الطاولة' : 'Table Receipt' }} — {{ selectedTable?.name }}</small>
+                        </div>
+                        <button type="button" class="btn-close" aria-label="Close" (click)="processCheckout('cancel')"></button>
+                      </div>
+                      <div class="modal-body">
+                        <ul class="list-group mb-3">
+                          @for (o of receiptOrders; track o) {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                              <div class="me-3">
+                                <div class="fw-semibold">{{ displayOrderName(o.name) }}</div>
+                                <small class="text-muted">
+                                  {{ isArabic ? 'السعر:' : 'Price:' }} {{ getOrderUnitPrice(o) | number:'1.2-2' }} ₪ × {{ o.quantity }}
+                                </small>
+                              </div>
+                              <div class="text-end text-nowrap">
+                                <div class="fw-semibold">{{ (getOrderUnitPrice(o) * o.quantity) | number:'1.2-2' }} ₪</div>
+                              </div>
+                            </li>
+                          }
+                        </ul>
+                        <div class="d-flex justify-content-between border-top pt-2">
+                          <strong>{{ isArabic ? 'المجموع الكلي:' : 'Total:' }}</strong>
+                          <span class="fs-5 fw-bold text-primary">{{ receiptTotal | number:'1.2-2' }} ₪</span>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="processCheckout('cancel')">{{ isArabic ? 'إلغاء' : 'Cancel' }}</button>
+                        <button type="button" class="btn btn-primary" (click)="processCheckout('print')">🖨 {{ isArabic ? 'طباعة' : 'Print' }}</button>
+                        <button type="button" class="btn btn-success" (click)="processCheckout('done')">{{ isArabic ? 'تم' : 'Done' }}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
-
-            <div class="ms-auto d-flex align-items-center">
-              <button class="btn btn-outline-danger"
-                      [disabled]="!hasOrders()"
-                      (click)="checkoutSelectedTable()">
-                {{ isArabic ? 'إنهاء الحساب' : 'Checkout' }}
-              </button>
-            </div>
-          </div>
-
-          <!-- ✅ Total Price Display -->
-          <div class="text-end mt-3 border-top pt-2">
-            <strong>{{ isArabic ? 'الإجمالي:' : 'Total:' }}</strong>
-            <span class="fs-5 fw-bold text-primary">{{ getTotalPrice() | number:'1.2-2' }} ₪</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- 🧾 Receipt Modal -->
-<div *ngIf="showReceiptModal"
-     class="modal fade show d-block"
-     tabindex="-1"
-     role="dialog"
-     aria-modal="true"
-     [ngStyle]="{ background: 'rgba(0,0,0,0.5)' }">
-  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div>
-          <h5 class="modal-title mb-0">{{ restaurantDisplayName }}</h5>
-          <small class="text-muted d-block">{{ isArabic ? 'فاتورة الطاولة' : 'Table Receipt' }} — {{ selectedTable?.name }}</small>
-        </div>
-        <button type="button" class="btn-close" aria-label="Close" (click)="processCheckout('cancel')"></button>
-      </div>
-      <div class="modal-body">
-        <ul class="list-group mb-3">
-          <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let o of receiptOrders">
-            <div class="me-3">
-              <div class="fw-semibold">{{ displayOrderName(o.name) }}</div>
-              <small class="text-muted">
-                {{ isArabic ? 'السعر:' : 'Price:' }} {{ getOrderUnitPrice(o) | number:'1.2-2' }} ₪ × {{ o.quantity }}
-              </small>
-            </div>
-            <div class="text-end text-nowrap">
-              <div class="fw-semibold">{{ (getOrderUnitPrice(o) * o.quantity) | number:'1.2-2' }} ₪</div>
-            </div>
-          </li>
-        </ul>
-        <div class="d-flex justify-content-between border-top pt-2">
-          <strong>{{ isArabic ? 'المجموع الكلي:' : 'Total:' }}</strong>
-          <span class="fs-5 fw-bold text-primary">{{ receiptTotal | number:'1.2-2' }} ₪</span>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="processCheckout('cancel')">{{ isArabic ? 'إلغاء' : 'Cancel' }}</button>
-        <button type="button" class="btn btn-primary" (click)="processCheckout('print')">🖨 {{ isArabic ? 'طباعة' : 'Print' }}</button>
-        <button type="button" class="btn btn-success" (click)="processCheckout('done')">{{ isArabic ? 'تم' : 'Done' }}</button>
-      </div>
-    </div>
-  </div>
-</div>
-</div>

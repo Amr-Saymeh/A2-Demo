@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LanguageService } from '../../services/language.service';
-import { CommonModule } from '@angular/common';
+
 import { firebaseService } from '../../services/restaurant.service';
 
 import { FormsModule } from '@angular/forms';
@@ -13,120 +13,136 @@ import { getAuth } from 'firebase/auth';
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   template: `
 
-    <div class="category-container">
-      <div class="container py-5">
-        <div class="section-header text-center mb-5">
-          <h2 class="display-5 fw-bold">{{ isArabic ? nameArabic : name }}</h2>
-          <div class="divider mx-auto"></div>
-          <p class="lead text-muted">
-            {{ isArabic ? catArabicPhrase : catPhrase }}
-          </p>
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-6 col-lg-4" *ngFor="let product of items">
-            <div class="product-card" (click)="openModal(product)">
-              <div class="product-image">
-                <img [src]="product.image" [alt]="isArabic ? product.nameArabic : product.name">
-              </div>
-              <div class="product-details">
-                <div class="item-wrap">
-                <h4 class="product-title">{{ isArabic ? product.nameArabic : product.name }}</h4>
-                <div class="price-tag">{{ product.price }}₪</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Item Modal -->
-      <div class="item-modal-overlay" *ngIf="showModal" [dir]="isArabic ? 'rtl' : 'ltr'" (click)="closeModal()">
-        <div class="item-modal" (click)="$event.stopPropagation()">
-          <div class="modal-image">
-            <img *ngIf="selectedItem" [src]="selectedItem.image" [alt]="isArabic ? selectedItem.nameArabic : selectedItem.name" />
-          </div>
-
-            <div class="modal-body">
-              <div class="d-flex align-items-center justify-content-between mb-3">
-                <h3 class="mb-0">{{ isArabic ? selectedItem?.nameArabic : selectedItem?.name }}</h3>
-                <div class="price-chip">{{ selectedItem?.price }}₪</div>
-              </div>
-
-              <div class="ingredients mb-3">
-                <h6 class="mb-2">{{ isArabic ? 'المكونات:' : 'Ingredients:' }}</h6>
-                <div>
-                  <ul>
-                    <li *ngFor="let i of (isArabic ? selectedItem?.ingredientsArabic : selectedItem?.ingredients)">
-                      {{ i }}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-            <!-- Notes & Quantity shown only when signed in -->
-            <div *ngIf="signedIn && session; else signInNotice">
-              <!-- Choices Section: only if item has choices -->
-              <div *ngIf="hasChoices" class="mb-3">
-                <h6 class="mb-2">{{ isArabic ? 'اختر خياراً:' : 'Select a choice:' }}</h6>
-                <div class="choice-group">
-                  <span class="choice-chip" *ngFor="let c of choiceDisplay; let i = index"
-                        [class.active]="selectedChoiceIndex === i"
-                        (click)="selectChoice(i); $event.stopPropagation()">
-                    {{ c.label }}<span class="choice-add" *ngIf="c.add"> +₪{{ c.add }}</span>
-                  </span>
-                </div>
-              </div>
-
-              <div class="d-flex align-items-center justify-content-between mb-4">
-                <div class="qty-ctrl">
-                  <button type="button" class="round minus" (click)="decQty()" [disabled]="quantity <= 1">−</button>
-                  <input class="qty-input" type="number" [value]="quantity" min="1" (change)="setQtyModal(+$any($event.target).value)" />
-                  <button type="button" class="round plus" (click)="incQty()">+</button>
-                </div>
-                <div class="total-price">
-                  <small>{{ isArabic ? 'المجموع' : 'Total' }}</small>
-                  <div class="h5 mb-0">{{ ((selectedItem?.price || 0) + selectedChoiceAdd) * quantity }}₪</div>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="showNotes = !showNotes">
-                  {{ isArabic ? 'ملاحظات' : 'Notes' }} <span [innerText]="showNotes ? '▲' : '▼'"></span>
-                </button>
-                <div *ngIf="showNotes" class="mt-2">
-                  <textarea class="form-control" rows="3" [(ngModel)]="notes" placeholder="{{ isArabic ? 'اكتب ملاحظاتك هنا...' : 'Write your notes here...' }}"></textarea>
-                </div>
-              </div>
-
-              <button type="button" class="btn btn-order w-100" (click)="onPrimaryCta()" [disabled]="placingOrder || (hasChoices && selectedChoiceIndex === null)">
-                <span *ngIf="!placingOrder">{{ justAdded ? (isArabic ? 'عرض السلة' : 'View in cart') : (isArabic ? 'أضف إلى السلة' : 'Add to cart') }}</span>
-                <span *ngIf="placingOrder" class="spinner-border spinner-border-sm"></span>
-              </button>
-            </div>
-
-            <ng-template #signInNotice>
-              <div class="alert alert-warning mt-3" role="alert">
-                {{ isArabic ? 'الرجاء تسجيل الدخول عبر رابط الطاولة لطلب هذا الطبق.' : 'Please sign in via your table link to order this item.' }}
-              </div>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cart FAB bottom-right (outside modal) -->
-      <a *ngIf="signedIn" class="cart-fab-right" [routerLink]="['/cart']" [attr.aria-label]="isArabic ? 'السلة' : 'Cart'">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
-          <path d="M7 18c-.83 0-1.5.67-1.5 1.5S6.17 21 7 21s1.5-.67 1.5-1.5S7.83 18 7 18zm10 0c-.83 0-1.5.67-1.5 1.5S16.17 21 17 21s1.5-.67 1.5-1.5S17.83 18 17 18zM7.16 14.26h9.97c.68 0 1.28-.43 1.49-1.08l2.07-6.21A1.25 1.25 0 0 0 19.52 5H6.21L5.7 3.65A1.5 1.5 0 0 0 4.21 2.63H3a1 1 0 1 0 0 2h1.21l3.18 8.44-.73 1.88a1.5 1.5 0 0 0 1.5 2.06h10.59a1 1 0 1 0 0-2H8.16l.53-1.35z"/>
-        </svg>
-      </a>
-
+<div class="category-container">
+  <div class="container py-5">
+    <div class="section-header text-center mb-5">
+      <h2 class="display-5 fw-bold">{{ isArabic ? nameArabic : name }}</h2>
+      <div class="divider mx-auto"></div>
+      <p class="lead text-muted">
+        {{ isArabic ? catArabicPhrase : catPhrase }}
+      </p>
     </div>
 
-  `,
+    <div class="row g-4">
+      @for (product of items; track product) {
+        <div class="col-md-6 col-lg-4">
+          <div class="product-card" (click)="openModal(product)">
+            <div class="product-image">
+              <img [src]="product.image" [alt]="isArabic ? product.nameArabic : product.name">
+            </div>
+            <div class="product-details">
+              <div class="item-wrap">
+                <h4 class="product-title">{{ isArabic ? product.nameArabic : product.name }}</h4>
+                <div class="price-tag">{{ product.price }}₪</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Item Modal -->
+  @if (showModal) {
+    <div class="item-modal-overlay" [dir]="isArabic ? 'rtl' : 'ltr'" (click)="closeModal()">
+      <div class="item-modal" (click)="$event.stopPropagation()">
+        <div class="modal-image">
+          @if (selectedItem) {
+            <img [src]="selectedItem.image" [alt]="isArabic ? selectedItem.nameArabic : selectedItem.name" />
+          }
+        </div>
+        <div class="modal-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="mb-0">{{ isArabic ? selectedItem?.nameArabic : selectedItem?.name }}</h3>
+            <div class="price-chip">{{ selectedItem?.price }}₪</div>
+          </div>
+          <div class="ingredients mb-3">
+            <h6 class="mb-2">{{ isArabic ? 'المكونات:' : 'Ingredients:' }}</h6>
+            <div>
+              <ul>
+                @for (i of (isArabic ? selectedItem?.ingredientsArabic : selectedItem?.ingredients); track i) {
+                  <li>
+                    {{ i }}
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+          <!-- Notes & Quantity shown only when signed in -->
+          @if (signedIn && session) {
+            <div>
+              <!-- Choices Section: only if item has choices -->
+              @if (hasChoices) {
+                <div class="mb-3">
+                  <h6 class="mb-2">{{ isArabic ? 'اختر خياراً:' : 'Select a choice:' }}</h6>
+                  <div class="choice-group">
+                    @for (c of choiceDisplay; track c; let i = $index) {
+                      <span class="choice-chip"
+                        [class.active]="selectedChoiceIndex === i"
+                        (click)="selectChoice(i); $event.stopPropagation()">
+                        {{ c.label }}@if (c.add) {
+                        <span class="choice-add"> +₪{{ c.add }}</span>
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <div class="qty-ctrl">
+                <button type="button" class="round minus" (click)="decQty()" [disabled]="quantity <= 1">−</button>
+                <input class="qty-input" type="number" [value]="quantity" min="1" (change)="setQtyModal(+$any($event.target).value)" />
+                <button type="button" class="round plus" (click)="incQty()">+</button>
+              </div>
+              <div class="total-price">
+                <small>{{ isArabic ? 'المجموع' : 'Total' }}</small>
+                <div class="h5 mb-0">{{ ((selectedItem?.price || 0) + selectedChoiceAdd) * quantity }}₪</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="showNotes = !showNotes">
+                {{ isArabic ? 'ملاحظات' : 'Notes' }} <span [innerText]="showNotes ? '▲' : '▼'"></span>
+              </button>
+              @if (showNotes) {
+                <div class="mt-2">
+                  <textarea class="form-control" rows="3" [(ngModel)]="notes" placeholder="{{ isArabic ? 'اكتب ملاحظاتك هنا...' : 'Write your notes here...' }}"></textarea>
+                </div>
+              }
+            </div>
+            <button type="button" class="btn btn-order w-100" (click)="onPrimaryCta()" [disabled]="placingOrder || (hasChoices && selectedChoiceIndex === null)">
+              @if (!placingOrder) {
+                <span>{{ justAdded ? (isArabic ? 'عرض السلة' : 'View in cart') : (isArabic ? 'أضف إلى السلة' : 'Add to cart') }}</span>
+              }
+              @if (placingOrder) {
+                <span class="spinner-border spinner-border-sm"></span>
+              }
+            </button>
+          </div>
+        } @else {
+          <div class="alert alert-warning mt-3" role="alert">
+            {{ isArabic ? 'الرجاء تسجيل الدخول عبر رابط الطاولة لطلب هذا الطبق.' : 'Please sign in via your table link to order this item.' }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Cart FAB bottom-right (outside modal) -->
+@if (signedIn) {
+  <a class="cart-fab-right" [routerLink]="['/cart']" [attr.aria-label]="isArabic ? 'السلة' : 'Cart'">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+      <path d="M7 18c-.83 0-1.5.67-1.5 1.5S6.17 21 7 21s1.5-.67 1.5-1.5S7.83 18 7 18zm10 0c-.83 0-1.5.67-1.5 1.5S16.17 21 17 21s1.5-.67 1.5-1.5S17.83 18 17 18zM7.16 14.26h9.97c.68 0 1.28-.43 1.49-1.08l2.07-6.21A1.25 1.25 0 0 0 19.52 5H6.21L5.7 3.65A1.5 1.5 0 0 0 4.21 2.63H3a1 1 0 1 0 0 2h1.21l3.18 8.44-.73 1.88a1.5 1.5 0 0 0 1.5 2.06h10.59a1 1 0 1 0 0-2H8.16l.53-1.35z"/>
+    </svg>
+  </a>
+}
+
+</div>
+
+`,
   styleUrls: ['./category.component.css']
 })
 export class CategoryComponent implements OnInit {

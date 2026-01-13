@@ -15,14 +15,14 @@ import { getRemoteConfig, provideRemoteConfig } from '@angular/fire/remote-confi
 import { getVertexAI, provideVertexAI } from '@angular/fire/vertexai';
 import { connectorConfig } from '@firebasegen/default-connector';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
-import { importProvidersFrom } from '@angular/core';
+import { importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { FormsModule } from '@angular/forms';   // ✅ add this
 import { getApp, getApps } from 'firebase/app';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideRouter(routes),
+    provideZoneChangeDetection(),provideRouter(routes),
     provideFirebaseApp(() => {
       const apps = getApps();
       if (apps.length) return getApp();

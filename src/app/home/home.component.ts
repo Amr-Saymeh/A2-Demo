@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { LanguageService } from '../services/language.service';
 import { firebaseService } from '../services/restaurant.service';
@@ -16,40 +16,43 @@ interface Category {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   template: `
     <div class="hero-banner text-white">
       <div class="overlay d-flex align-items-center justify-content-center text-center">
         <div>
-          <div *ngIf="signedIn && session" class="mb-3">
-            <!--<div class="alert alert-success d-inline-flex align-items-center gap-3">
+          @if (signedIn && session) {
+            <div class="mb-3">
+              <!--<div class="alert alert-success d-inline-flex align-items-center gap-3">
               <span>Hi, {{ getTableDisplayName() }}</span>
               <button class="btn btn-sm btn-outline-light" (click)="checkout()">Checkout</button>
             </div>-->
           </div>
-          <h1 class="display-4 fw-bold">
-            {{ isArabic ? 'مرحباً بكم في ' + (restaurant?.restArabicName || '') : 'Welcome to ' + (restaurant?.restName || '') }}
-          </h1>
-          <p class="lead">
-            {{ isArabic ? (restaurant?.restArabicPhrase || '') : (restaurant?.restPhrase || '') }}
-          </p>
-          <!-- Explore Menu Navigation -->
-          <div class="explore-menu mt-5">
-            <h4 class="mb-4" style="color: white;">{{ isArabic ? 'اكتشف نكهاتنا الرائعة' : 'Explore Our Menu' }}</h4>
-            <div class="category-links">
-                            <a *ngFor="let cat of categories" [routerLink]="['/', (session?.restId || restId), 'category', cat.key]" class="category-link">
-
+        }
+        <h1 class="display-4 fw-bold">
+          {{ isArabic ? 'مرحباً بكم في ' + (restaurant?.restArabicName || '') : 'Welcome to ' + (restaurant?.restName || '') }}
+        </h1>
+        <p class="lead">
+          {{ isArabic ? (restaurant?.restArabicPhrase || '') : (restaurant?.restPhrase || '') }}
+        </p>
+        <!-- Explore Menu Navigation -->
+        <div class="explore-menu mt-5">
+          <h4 class="mb-4" style="color: white;">{{ isArabic ? 'اكتشف نكهاتنا الرائعة' : 'Explore Our Menu' }}</h4>
+          <div class="category-links">
+            @for (cat of categories; track cat) {
+              <a [routerLink]="['/', (session?.restId || restId), 'category', cat.key]" class="category-link">
                 <div class="icon-container">
                   <i [class]="cat.icon"></i>
                 </div>
                 <span>{{ isArabic ? cat.nameArabic : cat.name }}</span>
               </a>
-            </div>
+            }
           </div>
         </div>
       </div>
     </div>
-  `,
+    </div>
+    `,
   styles: [`
     .hero-banner {
       background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80');

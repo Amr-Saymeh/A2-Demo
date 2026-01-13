@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { Database, ref, onValue, update } from '@angular/fire/database';
 import { MenuService } from '../../services/menu.service';
 import { Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ interface Order {
 @Component({
   selector: 'app-hookah-orders',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './hookah-orders.component.html',
   styleUrls: ['./hookah-orders.component.css']
 })

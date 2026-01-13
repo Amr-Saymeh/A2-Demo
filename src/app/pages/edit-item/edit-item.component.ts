@@ -1,7 +1,7 @@
 // edit-item.component.ts (replace existing file with this)
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule, HttpEventType } from '@angular/common/http';
 import { MenuService } from '../../services/menu.service';
@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './edit-item.component.html',
   styleUrls: ['./edit-item.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule]
+  imports: [FormsModule, HttpClientModule]
 })
 export class EditItemComponent implements OnInit, OnDestroy {
   restaurantId: string = '';

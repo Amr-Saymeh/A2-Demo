@@ -1,52 +1,52 @@
 <div class="container py-4">
   <div class="row align-items-stretch">
     <!-- Add Category Card -->
-<div class="col-md-6 mb-4">
-  <div class="card h-100">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">{{ isArabic ? 'إضافة فئة جديدة' : 'Add New Category' }}</h5>
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ isArabic ? 'إضافة فئة جديدة' : 'Add New Category' }}</h5>
+        </div>
+
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">{{ isArabic ? 'الاسم (إنجليزي)' : 'Name (EN)' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newCategory.name" placeholder="Enter name in English">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ isArabic ? 'الاسم (عربي)' : 'Name (AR)' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newCategory.nameArabic" dir="rtl" placeholder="أدخل الاسم بالعربية">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ isArabic ? 'العبارة (إنجليزي)' : 'Phrase (EN)' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newCategory.catPhrase" placeholder="Enter category phrase">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ isArabic ? 'العبارة (عربي)' : 'Phrase (AR)' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newCategory.catArabicPhrase" dir="rtl" placeholder="أدخل العبارة بالعربية">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ isArabic ? 'القسم' : 'Section' }}</label>
+            <select class="form-select" [(ngModel)]="newCategory.section">
+              <option value="kitchen">{{ isArabic ? 'مطبخ' : 'Kitchen' }}</option>
+              <option value="bar">{{ isArabic ? 'بار' : 'Bar' }}</option>
+              <option value="hookah">{{ isArabic ? 'أرجيلة' : 'Hookah' }}</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ isArabic ? 'رابط الأيقونة' : 'Icon URL' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newCategory.icon" placeholder="Enter icon URL">
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-primary bb-add-category" (click)="addCategory()">
+              <i class="bi bi-plus-circle me-2"></i>{{ isArabic ? 'إضافة فئة' : 'Add Category' }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="card-body">
-      <div class="mb-3">
-        <label class="form-label">{{ isArabic ? 'الاسم (إنجليزي)' : 'Name (EN)' }}</label>
-        <input type="text" class="form-control" [(ngModel)]="newCategory.name" placeholder="Enter name in English">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">{{ isArabic ? 'الاسم (عربي)' : 'Name (AR)' }}</label>
-        <input type="text" class="form-control" [(ngModel)]="newCategory.nameArabic" dir="rtl" placeholder="أدخل الاسم بالعربية">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">{{ isArabic ? 'العبارة (إنجليزي)' : 'Phrase (EN)' }}</label>
-        <input type="text" class="form-control" [(ngModel)]="newCategory.catPhrase" placeholder="Enter category phrase">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">{{ isArabic ? 'العبارة (عربي)' : 'Phrase (AR)' }}</label>
-        <input type="text" class="form-control" [(ngModel)]="newCategory.catArabicPhrase" dir="rtl" placeholder="أدخل العبارة بالعربية">
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">{{ isArabic ? 'القسم' : 'Section' }}</label>
-        <select class="form-select" [(ngModel)]="newCategory.section">
-          <option value="kitchen">{{ isArabic ? 'مطبخ' : 'Kitchen' }}</option>
-          <option value="bar">{{ isArabic ? 'بار' : 'Bar' }}</option>
-          <option value="hookah">{{ isArabic ? 'أرجيلة' : 'Hookah' }}</option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">{{ isArabic ? 'رابط الأيقونة' : 'Icon URL' }}</label>
-        <input type="text" class="form-control" [(ngModel)]="newCategory.icon" placeholder="Enter icon URL">
-      </div>
-
-      <div class="card-actions">
-        <button class="btn btn-primary bb-add-category" (click)="addCategory()">
-          <i class="bi bi-plus-circle me-2"></i>{{ isArabic ? 'إضافة فئة' : 'Add Category' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
     <!-- Add Item Card -->
@@ -59,12 +59,14 @@
           <div class="mb-3">
             <label class="form-label">{{ isArabic ? 'اختر الفئة' : 'Select Category' }}</label>
             <select class="form-select" [(ngModel)]="selectedCategoryId">
-              <option *ngFor="let cat of (categories | keyvalue)" [value]="cat.key">
-                {{ isArabic ? cat.value.nameArabic : cat.value.name }}
-              </option>
+              @for (cat of (categories | keyvalue); track cat) {
+                <option [value]="cat.key">
+                  {{ isArabic ? cat.value.nameArabic : cat.value.name }}
+                </option>
+              }
             </select>
           </div>
-          
+
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ isArabic ? 'اسم العنصر (إنجليزي)' : 'Item Name (EN)' }}</label>
@@ -75,7 +77,7 @@
               <input type="text" class="form-control" [(ngModel)]="newItem.nameArabic" dir="rtl" placeholder="أدخل اسم العنصر">
             </div>
           </div>
-          
+
           <div class="row">
             <div class="col-md-6 mb-3 f-width">
               <label class="form-label">{{ isArabic ? 'السعر' : 'Price' }}</label>
@@ -84,7 +86,7 @@
                 <input type="number" class="form-control" [(ngModel)]="newItem.price" placeholder="0.00">
               </div>
             </div>
-            
+
             <div class="col-md-6 mb-3 f-width">
               <div class="upload-area">
                 <label class="form-label">{{ isArabic ? 'رفع صورة' : 'Upload Image' }}</label>
@@ -95,23 +97,31 @@
                     <input #addImageInput type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="uploading" hidden />
                     <button type="button" class="btn btn-success" (click)="addImageInput.click()" [disabled]="uploading">{{ isArabic ? 'اختر صورة' : 'Choose Image' }}</button>
                     <div class="upload-meta">
-                      <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
-                      <button type="btn btn-success" class="clear-btn" *ngIf="previewUrl" (click)="clearPendingFile()" [disabled]="uploading">{{ isArabic ? 'إزالة' : 'Clear' }}</button>
+                      @if (selectedFileName) {
+                        <span class="file-name">{{ selectedFileName }}</span>
+                      }
+                      @if (previewUrl) {
+                        <button type="btn btn-success" class="clear-btn" (click)="clearPendingFile()" [disabled]="uploading">{{ isArabic ? 'إزالة' : 'Clear' }}</button>
+                      }
                     </div>
                   </div>
                   <p class="preview-title">{{ isArabic ? 'المعاينة:' : 'Preview:' }}</p>
 
-                  <div *ngIf="previewUrl" class="preview">
-                    <img [src]="previewUrl" alt="Image preview" />
-                  </div>
+                  @if (previewUrl) {
+                    <div class="preview">
+                      <img [src]="previewUrl" alt="Image preview" />
+                    </div>
+                  }
 
                   <small class="upload-hint-inline">{{ isArabic ? 'سيتم رفع الصورة عند الضغط على إضافة عنصر.' : 'The image will be uploaded when you click Add Item.' }}</small>
                 </div>
 
-                <div *ngIf="uploading" class="upload-progress">
-                  <div class="progress"><div class="progress-bar" [style.width.%]="uploadProgress"></div></div>
-                  <span>{{ uploadProgress }}%</span>
-                </div>
+                @if (uploading) {
+                  <div class="upload-progress">
+                    <div class="progress"><div class="progress-bar" [style.width.%]="uploadProgress"></div></div>
+                    <span>{{ uploadProgress }}%</span>
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -150,10 +160,14 @@
               </div>
             </div>
             <div class="choice-group mt-2">
-              <span class="choice-chip" *ngFor="let c of choiceOptions; let i = index" [class.active]="choiceEditIndex === i" (click)="editChoiceAt(i)">
-                <span class="chip-text">{{ c.ar }} / {{ c.en }}<span class="choice-add" *ngIf="c.add"> +₪{{ c.add }}</span></span>
-                <button type="button" class="chip-close" (click)="removeChoiceAt(i, $event)">×</button>
-              </span>
+              @for (c of choiceOptions; track c; let i = $index) {
+                <span class="choice-chip" [class.active]="choiceEditIndex === i" (click)="editChoiceAt(i)">
+                  <span class="chip-text">{{ c.ar }} / {{ c.en }}@if (c.add) {
+                    <span class="choice-add"> +₪{{ c.add }}</span>
+                  }</span>
+                  <button type="button" class="chip-close" (click)="removeChoiceAt(i, $event)">×</button>
+                </span>
+              }
             </div>
           </div>
           <div class="card-actions">

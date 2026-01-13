@@ -16,28 +16,32 @@ import { filter } from 'rxjs/operators';
     <nav class="navbar navbar-expand-lg sticky-top px-4" [ngClass]="{'navbar-dark': !isLightTheme, 'navbar-light bg-light': isLightTheme, 'signed-in': (signedIn && session)}">
       <div class="container">
         <!-- Left (mobile, signed-in): Call a waiter -->
-        <div class="nav-left d-lg-none" *ngIf="signedIn && session">
-          <button (click)="callWaiter()" class="btn btn-sm btn-waiter" style="padding: 0.5rem;" [disabled]="waiterRequested">
-            {{ isArabic ? (waiterRequested ? 'تم الطلب' : 'اطلب النادل') : (waiterRequested ? 'Requested' : 'Call a waiter') }}
-          </button>
-        </div>
+        @if (signedIn && session) {
+          <div class="nav-left d-lg-none">
+            <button (click)="callWaiter()" class="btn btn-sm btn-waiter" style="padding: 0.5rem;" [disabled]="waiterRequested">
+              {{ isArabic ? (waiterRequested ? 'تم الطلب' : 'اطلب النادل') : (waiterRequested ? 'Requested' : 'Call a waiter') }}
+            </button>
+          </div>
+        }
         <a class="navbar-brand" [routerLink]="['/', currentRestId]">{{ isArabic ? 'طلة يافا' : 'Talat Yafa' }}</a>
-        
-      
-        
+    
+    
+    
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-            <li class="nav-item" *ngFor="let category of categories">
-              <a class="nav-link d-flex flex-column align-items-center" 
-                 [routerLink]="['/', currentRestId, 'category', category.key]" 
-                 routerLinkActive="active">
-                <i [class]="category.icon + ' category-icon'"></i>
-                <span>{{ isArabic ? category.nameArabic : category.name }}</span>
-              </a>
-            </li>
+            @for (category of categories; track category) {
+              <li class="nav-item">
+                <a class="nav-link d-flex flex-column align-items-center"
+                  [routerLink]="['/', currentRestId, 'category', category.key]"
+                  routerLinkActive="active">
+                  <i [class]="category.icon + ' category-icon'"></i>
+                  <span>{{ isArabic ? category.nameArabic : category.name }}</span>
+                </a>
+              </li>
+            }
           </ul>
         </div>
-        
+    
         <!-- Actions: Language (right) -->
         <div class="nav-actions ms-auto d-flex align-items-center gap-2">
           <button (click)="toggleLanguage()" class="btn btn-sm" [ngClass]="{'btn-outline-light': !isLightTheme, 'btn-outline-dark': isLightTheme}">
@@ -46,27 +50,29 @@ import { filter } from 'rxjs/operators';
         </div>
       </div>
     </nav>
-
+    
     <!-- Category Navigation for Mobile -->
     <div class="category-nav-mobile" [dir]="isArabic ? 'rtl' : 'ltr'">
       <div class="container">
         <div class="scrollable-nav">
-          <a *ngFor="let category of categories" 
-             [routerLink]="['/', currentRestId, 'category', category.key]" 
-             routerLinkActive="active" 
-             class="category-item">
-            <i [class]="category.icon"></i>
-            <span>{{ isArabic ? category.nameArabic : category.name }}</span>
-          </a>
+          @for (category of categories; track category) {
+            <a
+              [routerLink]="['/', currentRestId, 'category', category.key]"
+              routerLinkActive="active"
+              class="category-item">
+              <i [class]="category.icon"></i>
+              <span>{{ isArabic ? category.nameArabic : category.name }}</span>
+            </a>
+          }
         </div>
       </div>
     </div>
-
+    
     <main [dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic}">
       <router-outlet></router-outlet>
     </main>
-
-  `,
+    
+    `,
   styles: [`
     :root {
       /* inherit global theme variables from styles.css */

@@ -13,73 +13,79 @@
           <span class="badge bg-primary">{{ tables.length || 0 }}</span>
         </div>
         <ul class="list-group list-group-flush" style="max-height: 70vh; overflow-y: auto;">
-          <li *ngFor="let table of tables"
+          @for (table of tables; track table) {
+            <li
               class="list-group-item d-flex justify-content-between align-items-center"
               (click)="selectTable(table)"
               [class.active]="selectedTable?.id === table.id">
-            <div class="d-flex flex-column">
-              <span class="fw-semibold">{{ table.name }}</span>
-            </div>
-            <span class="badge" [ngClass]="table.availability ? 'bg-success' : 'bg-danger'">
-              {{ table.availability ? (isArabic ? 'متاح' : 'Available') : (isArabic ? 'مشغولة' : 'Occupied') }}
-            </span>
-          </li>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ table.name }}</span>
+              </div>
+              <span class="badge" [ngClass]="table.availability ? 'bg-success' : 'bg-danger'">
+                {{ table.availability ? (isArabic ? 'متاح' : 'Available') : (isArabic ? 'مشغولة' : 'Occupied') }}
+              </span>
+            </li>
+          }
         </ul>
       </div>
     </div>
 
     <!-- Orders Section -->
-    <div class="col-lg-8" *ngIf="selectedTable">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            {{ isArabic ? 'الطلبات لـ' : 'Orders for' }} <strong>{{ selectedTable.name }}</strong>
+    @if (selectedTable) {
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              {{ isArabic ? 'الطلبات لـ' : 'Orders for' }} <strong>{{ selectedTable.name }}</strong>
+            </div>
+            <button class="btn btn-sm btn-outline-light" (click)="selectedTable = null">{{ isArabic ? 'رجوع' : 'Back' }}</button>
           </div>
-          <button class="btn btn-sm btn-outline-light" (click)="selectedTable = null">{{ isArabic ? 'رجوع' : 'Back' }}</button>
-        </div>
-
-        <div class="card-body">
-          <!-- Orders List -->
-          <ul class="list-group mb-3">
-            <li *ngFor="let order of selectedTable.order | keyvalue" class="list-group-item">
-              <div class="d-flex justify-content-between align-items-start">
-                <div class="flex-grow-1 pe-3">
-                  <div class="fw-bold">{{ order.value.name }}</div>
-                  <div class="mt-2">
-                    <input type="text" [(ngModel)]="order.value.details" class="form-control form-control-sm"
-                      [placeholder]="isArabic ? 'تفاصيل' : 'Details'">
-                  </div>
-                </div>
-                <div style="min-width: 160px;">
-                  <input type="number" [(ngModel)]="order.value.quantity" class="form-control form-control-sm" min="0">
-                  <div class="d-flex gap-2 mt-2">
-                    <button class="btn btn-sm btn-primary" (click)="updateOrder(order.key, order.value.quantity, order.value.details || '')">
-                      {{ isArabic ? 'تحديث' : 'Update' }}
-                    </button>
-                    <button class="btn btn-sm btn-warning" (click)="deleteOrder(order.key)">
-                      {{ isArabic ? 'حذف' : 'Remove' }}
-                    </button>
-                  </div>
-                </div>
+          <div class="card-body">
+            <!-- Orders List -->
+            <ul class="list-group mb-3">
+              @for (order of selectedTable.order | keyvalue; track order) {
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1 pe-3">
+                      <div class="fw-bold">{{ order.value.name }}</div>
+                      <div class="mt-2">
+                        <input type="text" [(ngModel)]="order.value.details" class="form-control form-control-sm"
+                          [placeholder]="isArabic ? 'تفاصيل' : 'Details'">
+                        </div>
+                      </div>
+                      <div style="min-width: 160px;">
+                        <input type="number" [(ngModel)]="order.value.quantity" class="form-control form-control-sm" min="0">
+                        <div class="d-flex gap-2 mt-2">
+                          <button class="btn btn-sm btn-primary" (click)="updateOrder(order.key, order.value.quantity, order.value.details || '')">
+                            {{ isArabic ? 'تحديث' : 'Update' }}
+                          </button>
+                          <button class="btn btn-sm btn-warning" (click)="deleteOrder(order.key)">
+                            {{ isArabic ? 'حذف' : 'Remove' }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                }
+              </ul>
+              <!-- Add Order -->
+              <div class="d-flex flex-wrap gap-2">
+                <input type="text" #itemName class="form-control" [placeholder]="isArabic ? 'اسم الصنف' : 'Item name'" style="max-width: 260px;" list="menuSuggestions">
+                <datalist id="menuSuggestions">
+                  @for (name of menuItemNames; track name) {
+                    <option [value]="name"></option>
+                  }
+                </datalist>
+                <input type="number" #itemQty class="form-control" [placeholder]="isArabic ? 'الكمية' : 'Qty'" min="1" style="max-width: 100px;">
+                <input type="text" #itemDetails class="form-control" [placeholder]="isArabic ? 'تفاصيل (اختياري)' : 'Details (optional)'">
+                <button class="btn btn-success"
+                  (click)="addOrder(itemName.value, +itemQty.value, itemDetails.value); itemName.value=''; itemQty.value=''; itemDetails.value=''">
+                  {{ isArabic ? 'إضافة' : 'Add' }}
+                </button>
               </div>
-            </li>
-          </ul>
-
-          <!-- Add Order -->
-          <div class="d-flex flex-wrap gap-2">
-            <input type="text" #itemName class="form-control" [placeholder]="isArabic ? 'اسم الصنف' : 'Item name'" style="max-width: 260px;" list="menuSuggestions">
-            <datalist id="menuSuggestions">
-              <option *ngFor="let name of menuItemNames" [value]="name"></option>
-            </datalist>
-            <input type="number" #itemQty class="form-control" [placeholder]="isArabic ? 'الكمية' : 'Qty'" min="1" style="max-width: 100px;">
-            <input type="text" #itemDetails class="form-control" [placeholder]="isArabic ? 'تفاصيل (اختياري)' : 'Details (optional)'">
-            <button class="btn btn-success"
-              (click)="addOrder(itemName.value, +itemQty.value, itemDetails.value); itemName.value=''; itemQty.value=''; itemDetails.value=''">
-              {{ isArabic ? 'إضافة' : 'Add' }}
-            </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   </div>
-</div>

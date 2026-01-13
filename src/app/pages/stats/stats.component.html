@@ -135,7 +135,7 @@
                     <mat-option value="year">{{ isArabic ? 'سنوي' : 'Yearly' }}</mat-option>
                   </mat-select>
                 </mat-form-field>
-                
+
               </div>
             </div>
             <div class="card-body chart-lg">
@@ -179,7 +179,9 @@
                 <mat-form-field appearance="outline" style="width: 220px;">
                   <mat-label>{{ isArabic ? 'الفئة' : 'Category' }}</mat-label>
                   <mat-select panelClass="menu-select-panel" [(ngModel)]="selectedItemsCategoryKey" (selectionChange)="refreshAllCharts()">
-                    <mat-option *ngFor="let c of categoryList; trackBy: trackByKey" [value]="c.key">{{ c.label }}</mat-option>
+                    @for (c of categoryList; track trackByKey($index, c)) {
+                      <mat-option [value]="c.key">{{ c.label }}</mat-option>
+                    }
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline" style="width: 150px;">
@@ -200,7 +202,7 @@
         </div>
       </div>
 
-      
+
 
       <div class="card shadow-sm mt-3 fade-in" style="padding-bottom: 10em;">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -233,7 +235,7 @@
               </tr>
             </thead>
             <tbody>
-              <ng-container *ngFor="let o of filteredOrders; trackBy: trackById">
+              @for (o of filteredOrders; track trackById($index, o)) {
                 <tr class="order-row">
                   <td class="text-muted">#{{ o.id }}</td>
                   <td>{{ o.tableName || o.tableId || '-' }}</td>
@@ -245,34 +247,42 @@
                     </button>
                   </td>
                 </tr>
-                <tr *ngIf="isExpanded(o.id)">
-                  <td colspan="5" class="bg-body-tertiary">
-                    <div class="p-2" [@expandCollapse]>
-                      <div class="small text-muted mb-2">{{ isArabic ? 'العناصر' : 'Items' }}</div>
-                      <div class="row row-cols-1 row-cols-md-2 g-2">
-                        <div class="col" *ngFor="let it of orderItemsArray(o); trackBy: trackByKey">
-                          <div class="d-flex justify-content-between border rounded p-2">
-                            <div>
-                              <div class="fw-semibold">{{ getItemDisplayName(it) }}</div>
-                              <small class="text-muted" *ngIf="it.choiceEn || it.choiceAr">{{ isArabic ? it.choiceAr || it.choiceEn : it.choiceEn || it.choiceAr }}</small>
+                @if (isExpanded(o.id)) {
+                  <tr>
+                    <td colspan="5" class="bg-body-tertiary">
+                      <div class="p-2" [@expandCollapse]>
+                        <div class="small text-muted mb-2">{{ isArabic ? 'العناصر' : 'Items' }}</div>
+                        <div class="row row-cols-1 row-cols-md-2 g-2">
+                          @for (it of orderItemsArray(o); track trackByKey($index, it)) {
+                            <div class="col">
+                              <div class="d-flex justify-content-between border rounded p-2">
+                                <div>
+                                  <div class="fw-semibold">{{ getItemDisplayName(it) }}</div>
+                                  @if (it.choiceEn || it.choiceAr) {
+                                    <small class="text-muted">{{ isArabic ? it.choiceAr || it.choiceEn : it.choiceEn || it.choiceAr }}</small>
+                                  }
+                                </div>
+                                <div class="text-end">
+                                  <div>× {{ it.quantity || 1 }}</div>
+                                  <small class="text-muted">₪ {{ (it.unitPrice || it.price || 0) | number:'1.2-2' }}</small>
+                                </div>
+                              </div>
                             </div>
-                            <div class="text-end">
-                              <div>× {{ it.quantity || 1 }}</div>
-                              <small class="text-muted">₪ {{ (it.unitPrice || it.price || 0) | number:'1.2-2' }}</small>
-                            </div>
-                          </div>
+                          }
                         </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              </ng-container>
+                    </td>
+                  </tr>
+                }
+              }
             </tbody>
           </table>
         </div>
-        <div class="card-footer text-center" *ngIf="orders.length > orderPageSize">
-          <button class="btn btn-outline-secondary btn-sm" (click)="loadMoreOrders()">{{ isArabic ? 'حمّل المزيد' : 'Load older' }}</button>
-        </div>
+        @if (orders.length > orderPageSize) {
+          <div class="card-footer text-center">
+            <button class="btn btn-outline-secondary btn-sm" (click)="loadMoreOrders()">{{ isArabic ? 'حمّل المزيد' : 'Load older' }}</button>
+          </div>
+        }
       </div>
     </div>
 
@@ -299,10 +309,12 @@
           <span>{{ isArabic ? 'العناصر الأكثر مبيعًا' : 'Best Selling Items' }}</span>
         </div>
         <div class="list-group list-group-flush">
-          <div class="list-group-item d-flex justify-content-between" *ngFor="let it of getTopSelling(8); trackBy: trackByKey">
-            <div>{{ it.label }}</div>
-            <div class="text-muted">× {{ it.count }}</div>
-          </div>
+          @for (it of getTopSelling(8); track trackByKey($index, it)) {
+            <div class="list-group-item d-flex justify-content-between">
+              <div>{{ it.label }}</div>
+              <div class="text-muted">× {{ it.count }}</div>
+            </div>
+          }
         </div>
       </div>
     </div>
