@@ -407,7 +407,7 @@ html {
 .shadow-lg { box-shadow: var(--hover-shadow) !important; }
 
 /* Material tweaks for compact header controls */
-.card-header .mat-mdc-form-field{ --mdc-outlined-text-field-outline-color:#e5e7eb}
+.card-header .mat-mdc-form-field{ --mat-form-field-outlined-outline-color:#e5e7eb}
 .card-header .mat-mdc-form-field-subscript-wrapper{display:none}
 
 /* Language-specific utility classes */
