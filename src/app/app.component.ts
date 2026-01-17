@@ -54,10 +54,15 @@ import { filter } from 'rxjs/operators';
     }
 
     @if (isAdminRoute) {
-      <aside class="admin-sidebar" [attr.dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic}">
+      <aside class="admin-sidebar" [attr.dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic, 'collapsed': !adminSidebarOpen}">
         <div class="sidebar-header d-flex align-items-center justify-content-between">
           <a class="sidebar-brand" [routerLink]="['/', currentRestId]">{{ isArabic ? 'طلة يافا' : 'Talat Yafa' }}</a>
-          <button (click)="toggleLanguage()" class="btn btn-sm btn-outline-secondary">{{ isArabic ? 'English' : 'عربي' }}</button>
+          <div class="d-flex align-items-center gap-2">
+            <button (click)="toggleLanguage()" class="btn btn-sm btn-outline-secondary">{{ isArabic ? 'English' : 'عربي' }}</button>
+            <button type="button" (click)="closeAdminSidebar()" class="btn btn-sm btn-outline-secondary" [attr.aria-label]="isArabic ? 'إغلاق الشريط الجانبي' : 'Close sidebar'">
+              <i [class]="isArabic ? 'fas fa-angle-right' : 'fas fa-angle-left'"></i>
+            </button>
+          </div>
         </div>
         <div class="sidebar-section">
           <div class="section-title">{{ isArabic ? 'عام' : 'GENERAL' }}</div>
@@ -80,6 +85,11 @@ import { filter } from 'rxjs/operators';
         </div>
       </aside>
     }
+    @if (isAdminRoute && !adminSidebarOpen) {
+      <button type="button" class="btn btn-primary admin-sidebar-toggle" (click)="openAdminSidebar()" [attr.dir]="isArabic ? 'rtl' : 'ltr'">
+        <i class="fas fa-bars me-1"></i>{{ isArabic ? 'القائمة' : 'Menu' }}
+      </button>
+    }
     
     <!-- Category Navigation for Mobile -->
     @if (!isAdminRoute) {
@@ -100,7 +110,7 @@ import { filter } from 'rxjs/operators';
     </div>
     }
     
-    <main [dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic, 'admin-content': isAdminRoute}">
+    <main [dir]="isArabic ? 'rtl' : 'ltr'" [ngClass]="{'arabic-font': isArabic, 'admin-content': isAdminRoute && adminSidebarOpen}">
       <router-outlet></router-outlet>
     </main>
     
@@ -312,7 +322,12 @@ import { filter } from 'rxjs/operators';
       padding: 16px;
       overflow-y: auto;
       z-index: 1040;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
     }
+    .admin-sidebar[dir="rtl"] { right: 0; left: auto; border-right: none; border-left: 1px solid #eee; }
+    .admin-sidebar.collapsed { transform: translateX(-100%); }
+    .admin-sidebar[dir="rtl"].collapsed { transform: translateX(100%); }
     .sidebar-header { padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
     .sidebar-brand { font-weight: 700; color: var(--secondary-color); text-decoration: none; }
     .section-title { font-size: 0.75rem; letter-spacing: .08em; color: #9ca3af; padding: 12px 0 6px; }
@@ -322,10 +337,21 @@ import { filter } from 'rxjs/operators';
     .sidebar-link.active { background: #f3f4f6; font-weight: 600; }
     .sidebar-section + .sidebar-section { border-top: 1px solid #f0f0f0; margin-top: 12px; padding-top: 12px; }
     .admin-content { margin-left: 260px; }
+    .admin-content[dir="rtl"] { margin-left: 0; margin-right: 260px; }
+    .admin-sidebar-toggle {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1050;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+    .admin-sidebar-toggle[dir="rtl"] { right: 16px; left: auto; }
     /* Keep sidebar fixed and scrollable on smaller screens */
     @media (max-width: 991.98px) {
       .admin-content { margin-left: 260px; }
+      .admin-content[dir="rtl"] { margin-left: 0; margin-right: 260px; }
       .admin-sidebar { position: fixed; width: 260px; height: 100vh; overflow-y: auto; top: 0; left: 0; border-right: 1px solid #eee; }
+      .admin-sidebar[dir="rtl"] { left: auto; right: 0; border-right: none; border-left: 1px solid #eee; }
     }
 
     /* Desktop navbar: horizontal scroll for categories */
@@ -390,6 +416,7 @@ export class AppComponent implements OnInit {
   waiterRequested = false;
   currentRestId: string = '';
   isAdminRoute = false;
+  adminSidebarOpen = true;
   private adminPages = new Set([
     'dashboard',
     'stats',
@@ -457,6 +484,9 @@ export class AppComponent implements OnInit {
     const page = parts.length >= 2 ? parts[1] : '';
     this.isAdminRoute = this.adminPages.has(page);
   }
+
+  openAdminSidebar() { this.adminSidebarOpen = true; }
+  closeAdminSidebar() { this.adminSidebarOpen = false; }
 
   async callWaiter() {
     if (!this.signedIn || !this.session) return;

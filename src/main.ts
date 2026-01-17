@@ -12,7 +12,7 @@ import { getMessaging, provideMessaging } from '@angular/fire/messaging';
 import { getPerformance, providePerformance } from '@angular/fire/performance';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 import { getRemoteConfig, provideRemoteConfig } from '@angular/fire/remote-config';
-import { getVertexAI, provideVertexAI } from '@angular/fire/vertexai';
+//import { getVertexAI, provideVertexAI } from '@angular/fire/vertexai';
 import { connectorConfig } from '@firebasegen/default-connector';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
@@ -48,7 +48,7 @@ bootstrapApplication(AppComponent, {
     providePerformance(() => getPerformance()),
     provideStorage(() => getStorage()),
     provideRemoteConfig(() => getRemoteConfig()),
-    provideVertexAI(() => getVertexAI()),
+    //provideVertexAI(() => getVertexAI()),
     provideTanStackQuery(new QueryClient()),
     importProvidersFrom(FormsModule),  // ✅ this enables [(ngModel)]
     provideAnimations(),               // ✅ required for Angular Material animations
